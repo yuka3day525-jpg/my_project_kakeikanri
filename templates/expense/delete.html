@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>カテゴリー編集</title>
+</head>
+<body>
+
+<h1>カテゴリー編集</h1>
+
+<form method="POST">
+{% csrf_token %}
+<p>この明細を削除していいですか？</p>
+<button type="submit">削除</button>
+</form>
+<p>利用日：{{ object.used_date }}</p>
+<p>利用店名：{{ object.store_name }}</p>
+<p>金額：{{ object.amount }}円</p>
+<p>カテゴリー：{{ object.category }}</p>
+<!-- ↑改行も反映されるようになる -->
+<br>

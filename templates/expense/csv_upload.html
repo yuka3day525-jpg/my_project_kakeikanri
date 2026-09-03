@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>CSVアップロード</title>
+</head>
+<body>
+
+<h1>楽天カードCSVアップロード</h1>
+
+<form method="post" enctype="multipart/form-data">
+    <!-- ファイルを送信するときは必須。enctypeは呪文のようなもの -->
+    {% csrf_token %}
+
+    {{ form.as_p }}
+
+    <button type="submit">
+        CSVを取り込む
+    </button>
+</form>
+
+</body>
+</html>

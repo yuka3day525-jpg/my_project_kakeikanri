@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>カテゴリー編集</title>
+</head>
+<body>
+
+<h1>カテゴリー編集</h1>
+
+<p>利用日：{{ object.used_date }}</p>
+<p>利用店名：{{ object.store_name }}</p>
+<p>金額：{{ object.amount }}円</p>
+
+<form method="post">
+<!-- method="post"は、入力した内容をサーバーへ送る方法を指定している。今回なら、選んだカテゴリーをDjangoへ送って、DBを更新する。データを変更するときは基本的にpostを使う。
+一方、検索など、DBを変更しない処理ではgetを使うことが多い。 -->
+    {% csrf_token %}
+<!-- ↑webアプリの脆弱性の一つ、csrf検証を自動で行ってくれるもの -->
+    {{ form.as_p }}
+<!-- ↑自動で入力項目が生成される -->
+    <button type="submit">保存</button>
+</form>
+
+{% if kind == "expense" %}
+<a href="{% url 'expense:expense_delete' object.pk %}">
+    削除
+</a>
+
+{% elif kind == "bank" %}
+<a href="{% url 'expense:ginkou_delete' object.pk %}">
+    削除
+</a>
+{% endif %}
+
+<p>
+    <a href="{% url 'expense:expense_month' object.billing_month %}">
+        一覧へ戻る
+    </a>
+</p>
+
+</body>
+</html>

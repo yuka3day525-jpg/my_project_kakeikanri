@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>家計管理</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'expense/css/base.css' %}">
+
+</head>
+<body>
+
+<p>
+    {% for item in month_list %}
+        <a href="{% url 'expense:expense_month' item %}">
+            {{ item }}
+        </a>
+    {% endfor %}
+</p>
+
+<p><a href="{% url 'expense:csv_upload' %}">CSVアップロード</a></p>
+<p><a href="{% url 'expense:ginkou_upload' %}">銀行アップロード</a></p>
+<form method="post" action="{% url 'accounts:logout' %}">
+    {% csrf_token %}
+    <button type="submit">ログアウト</button>
+<h1>{{ month }}家計管理</h1>
+
+<h2>カテゴリー別支出</h2>
+
+<div class="chart-box">
+<canvas id="categoryChart"></canvas>
+{{ chart_labels|json_script:"chart-labels" }}
+{{ chart_values|json_script:"chart-values" }}
+</div>
+
+<div class="chart-box">
+<canvas id="monthlyChart"></canvas>
+{{ monthly_labels|json_script:"monthly-labels" }}
+{{ monthly_values|json_script:"monthly-values" }}
+</div>
+
+<div class="chart-box">
+<canvas id="ownerChart"></canvas>
+{{ owner_labels|json_script:"owner-labels" }}
+{{ owner_values|json_script:"owner-values" }}
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="{% static 'expense/js/expense_chart.js' %}"></script>
+
+
+<h2>カテゴリー別合計</h2>
+<table border="1">
+    <tr>
+        <th>カテゴリー</th>
+        <th>合計金額</th>
+    </tr>
+
+    {% for item in category_totals %}
+    <tr>
+        <td>{{ item.category }}</td>
+        <td>{{ item.total }}円</td>
+    </tr>
+    {% endfor %}
+</table>
+
+<h1>楽天カード利用明細 世帯一覧</h1>
+
+<table border="1">
+    <tr>
+        <th>利用者</th>
+        <th>利用日</th>
+        <th>利用店名</th>
+        <th>金額</th>
+        <th>カテゴリー</th>
+        <th>分類方法</th>
+        <th>編集する</th>
+    </tr>
+
+    {% for expense in expenses %}
+    <tr>
+        <td>{{ expense.owner }}</td>
+        <td>{{ expense.used_date }}</td>
+        <td>{{ expense.store_name }}</td>
+        <td>{{ expense.amount }}円</td>
+        <td>{{ expense.category }}</td>
+        <td>{{ expense.classification_method }}</td>
+        <td>
+            <a href="{% url 'expense:expense_category_update' expense.pk %}">
+            <!-- 一方、expense.pkを書かかないとpkに入れる値がないので、ページ表示時にだいたいエラーになる。expense.pkは今この行に表示しているExpenseデータのIDを表してる。
+            ちなみにpkはprimary keyの略で、今回ならDjangoが自動で作ったidとほぼ同じ。 -->
+              変更
+            </a>
+        </td>
+    </tr>
+    {% empty %}
+    <tr>
+        <td colspan="7">明細がありません。</td>
+        <!-- これは、表の4列分を横につなげて1つのセルにするという意味。普通に書くと1列分だけになるがcolspan="4"を付けると、4列分の幅を使って表示される。 -->
+    </tr>
+    {% endfor %}
+</table>
+
+<h1>楽天銀行利用明細 世帯一覧</h1>
+
+<table border="1">
+    <tr>
+        <th>利用者</th>
+        <th>利用日</th>
+        <th>入出金</th>
+        <th>取引後残高</th>
+        <th>内容</th>
+        <th>カテゴリー</th>
+        <th>分類方法</th>
+        <th>編集する</th>
+    </tr>
+
+    {% for rakuten in rakutens %}
+    <tr>
+        <td>{{ rakuten.owner }}</td>
+        <td>{{ rakuten.used_date }}</td>
+        <td>{{ rakuten.amount }}</td>
+        <td>{{ rakuten.zankin }}円</td>
+        <td>{{ rakuten.store_name }}</td>
+        <td>{{ rakuten.category }}</td>
+        <td>{{ rakuten.classification_method }}</td>
+        <td>
+            <a href="{% url 'expense:ginkou_category_update' rakuten.pk %}">
+            <!-- 一方、expense.pkを書かかないとpkに入れる値がないので、ページ表示時にだいたいエラーになる。expense.pkは今この行に表示しているExpenseデータのIDを表してる。
+            ちなみにpkはprimary keyの略で、今回ならDjangoが自動で作ったidとほぼ同じ。 -->
+              変更
+            </a>
+        </td>
+    </tr>
+    {% empty %}
+    <tr>
+        <td colspan="8">明細がありません。</td>
+        <!-- これは、表の4列分を横につなげて1つのセルにするという意味。普通に書くと1列分だけになるがcolspan="4"を付けると、4列分の幅を使って表示される。 -->
+    </tr>
+    {% endfor %}
+</table>
+
+<h1>三菱UFJ銀行利用明細 世帯一覧</h1>
+
+<table border="1">
+    <tr>
+        <th>利用者</th>
+        <th>利用日</th>
+        <th>入出金</th>
+        <th>取引後残高</th>
+        <th>内容</th>
+        <th>カテゴリー</th>
+        <th>分類方法</th>
+        <th>編集する</th>
+    </tr>
+
+    {% for ufj in ufjs %}
+    <tr>
+        <td>{{ ufj.owner }}</td>
+        <td>{{ ufj.used_date }}</td>
+        <td>{{ ufj.amount }}</td>
+        <td>{{ ufj.zankin }}円</td>
+        <td>{{ ufj.store_name }}</td>
+        <td>{{ ufj.category }}</td>
+        <td>{{ ufj.classification_method }}</td>
+        <td>
+            <a href="{% url 'expense:ginkou_category_update' ufj.pk %}">
+            <!-- 一方、expense.pkを書かかないとpkに入れる値がないので、ページ表示時にだいたいエラーになる。expense.pkは今この行に表示しているExpenseデータのIDを表してる。
+            ちなみにpkはprimary keyの略で、今回ならDjangoが自動で作ったidとほぼ同じ。 -->
+              変更
+            </a>
+        </td>
+    </tr>
+    {% empty %}
+    <tr>
+        <td colspan="8">明細がありません。</td>
+        <!-- これは、表の4列分を横につなげて1つのセルにするという意味。普通に書くと1列分だけになるがcolspan="4"を付けると、4列分の幅を使って表示される。 -->
+    </tr>
+    {% endfor %}
+</table>
+
+<h1>ろうきん利用明細 世帯一覧</h1>
+
+<table border="1">
+    <tr>
+        <th>利用者</th>
+        <th>利用日</th>
+        <th>入出金</th>
+        <th>取引後残高</th>
+        <th>内容</th>
+        <th>カテゴリー</th>
+        <th>分類方法</th>
+        <th>編集する</th>
+    </tr>
+
+    {% for roukin in roukins %}
+    <tr>
+        <td>{{ roukin.owner }}</td>
+        <td>{{ roukin.used_date }}</td>
+        <td>{{ roukin.amount }}</td>
+        <td>{{ roukin.zankin }}円</td>
+        <td>{{ roukin.store_name }}</td>
+        <td>{{ roukin.category }}</td>
+        <td>{{ roukin.classification_method }}</td>
+        <td>
+            <a href="{% url 'expense:ginkou_category_update' roukin.pk %}">
+            <!-- 一方、expense.pkを書かかないとpkに入れる値がないので、ページ表示時にだいたいエラーになる。expense.pkは今この行に表示しているExpenseデータのIDを表してる。
+            ちなみにpkはprimary keyの略で、今回ならDjangoが自動で作ったidとほぼ同じ。 -->
+              変更
+            </a>
+        </td>
+    </tr>
+    {% empty %}
+    <tr>
+        <td colspan="8">明細がありません。</td>
+        <!-- これは、表の4列分を横につなげて1つのセルにするという意味。普通に書くと1列分だけになるがcolspan="4"を付けると、4列分の幅を使って表示される。 -->
+    </tr>
+    {% endfor %}
+</table>
+
+
+<hr>
+
+
+<h1>楽天カード利用明細 個人一覧</h1>
+
+<table border="1">
+    <tr>
+        <th>利用日</th>
+        <th>利用店名</th>
+        <th>金額</th>
+        <th>カテゴリー</th>
+        <th>分類方法</th>
+        <th>編集する</th>
+    </tr>
+
+    {% for expense in my_expenses %}
+    <tr>
+        <td>{{ expense.used_date }}</td>
+        <td>{{ expense.store_name }}</td>
+        <td>{{ expense.amount }}円</td>
+        <td>{{ expense.category }}</td>
+        <td>{{ expense.classification_method }}</td>
+        <td>
+            <a href="{% url 'expense:expense_category_update' expense.pk %}">
+            <!-- 一方、expense.pkを書かかないとpkに入れる値がないので、ページ表示時にだいたいエラーになる。expense.pkは今この行に表示しているExpenseデータのIDを表してる。
+            ちなみにpkはprimary keyの略で、今回ならDjangoが自動で作ったidとほぼ同じ。 -->
+              変更
+            </a>
+        </td>
+    </tr>
+    {% empty %}
+    <tr>
+        <td colspan="6">明細がありません。</td>
+        <!-- これは、表の4列分を横につなげて1つのセルにするという意味。普通に書くと1列分だけになるがcolspan="4"を付けると、4列分の幅を使って表示される。 -->
+    </tr>
+    {% endfor %}
+</table>
+
+<h1>楽天銀行利用明細 個人一覧</h1>
+
+<table border="1">
+    <tr>
+        <th>利用日</th>
+        <th>入出金</th>
+        <th>取引後残高</th>
+        <th>内容</th>
+        <th>カテゴリー</th>
+        <th>分類方法</th>
+        <th>編集する</th>
+    </tr>
+
+    {% for rakuten in my_rakutens %}
+    <tr>
+        <td>{{ rakuten.used_date }}</td>
+        <td>{{ rakuten.amount }}</td>
+        <td>{{ rakuten.zankin }}円</td>
+        <td>{{ rakuten.store_name }}</td>
+        <td>{{ rakuten.category }}</td>
+        <td>{{ rakuten.classification_method }}</td>
+        <td>
+            <a href="{% url 'expense:ginkou_category_update' rakuten.pk %}">
+            <!-- 一方、expense.pkを書かかないとpkに入れる値がないので、ページ表示時にだいたいエラーになる。expense.pkは今この行に表示しているExpenseデータのIDを表してる。
+            ちなみにpkはprimary keyの略で、今回ならDjangoが自動で作ったidとほぼ同じ。 -->
+              変更
+            </a>
+        </td>
+    </tr>
+    {% empty %}
+    <tr>
+        <td colspan="7">明細がありません。</td>
+        <!-- これは、表の4列分を横につなげて1つのセルにするという意味。普通に書くと1列分だけになるがcolspan="4"を付けると、4列分の幅を使って表示される。 -->
+    </tr>
+    {% endfor %}
+</table>
+
+{% if my_ufjs %}
+<h1>三菱UFJ銀行利用明細 個人一覧</h1>
+
+<table border="1">
+    <tr>
+        <th>利用日</th>
+        <th>入出金</th>
+        <th>取引後残高</th>
+        <th>内容</th>
+        <th>カテゴリー</th>
+        <th>分類方法</th>
+        <th>編集する</th>
+    </tr>
+
+    {% for ufj in my_ufjs %}
+    <tr>
+        <td>{{ ufj.used_date }}</td>
+        <td>{{ ufj.amount }}</td>
+        <td>{{ ufj.zankin }}円</td>
+        <td>{{ ufj.store_name }}</td>
+        <td>{{ ufj.category }}</td>
+        <td>{{ ufj.classification_method }}</td>
+        <td>
+            <a href="{% url 'expense:ginkou_category_update' ufj.pk %}">
+            <!-- 一方、expense.pkを書かかないとpkに入れる値がないので、ページ表示時にだいたいエラーになる。expense.pkは今この行に表示しているExpenseデータのIDを表してる。
+            ちなみにpkはprimary keyの略で、今回ならDjangoが自動で作ったidとほぼ同じ。 -->
+              変更
+            </a>
+        </td>
+    </tr>
+    {% empty %}
+    <tr>
+        <td colspan="7">明細がありません。</td>
+        <!-- これは、表の4列分を横につなげて1つのセルにするという意味。普通に書くと1列分だけになるがcolspan="4"を付けると、4列分の幅を使って表示される。 -->
+    </tr>
+    {% endfor %}
+</table>
+{% endif %}
+
+{% if my_roukins %}
+<h1>ろうきん利用明細 個人一覧</h1>
+
+<table border="1">
+    <tr>
+        <th>利用日</th>
+        <th>入出金</th>
+        <th>取引後残高</th>
+        <th>内容</th>
+        <th>カテゴリー</th>
+        <th>分類方法</th>
+        <th>編集する</th>
+    </tr>
+
+    {% for roukin in my_roukins %}
+    <tr>
+        <td>{{ roukin.used_date }}</td>
+        <td>{{ roukin.amount }}</td>
+        <td>{{ roukin.zankin }}円</td>
+        <td>{{ roukin.store_name }}</td>
+        <td>{{ roukin.category }}</td>
+        <td>{{ roukin.classification_method }}</td>
+        <td>
+            <a href="{% url 'expense:ginkou_category_update' roukin.pk %}">
+            <!-- 一方、expense.pkを書かかないとpkに入れる値がないので、ページ表示時にだいたいエラーになる。expense.pkは今この行に表示しているExpenseデータのIDを表してる。
+            ちなみにpkはprimary keyの略で、今回ならDjangoが自動で作ったidとほぼ同じ。 -->
+              変更
+            </a>
+        </td>
+    </tr>
+    {% empty %}
+    <tr>
+        <td colspan="7">明細がありません。</td>
+        <!-- これは、表の4列分を横につなげて1つのセルにするという意味。普通に書くと1列分だけになるがcolspan="4"を付けると、4列分の幅を使って表示される。 -->
+    </tr>
+    {% endfor %}
+</table>
+{% endif %}
+
+
+</body>
+</html>
