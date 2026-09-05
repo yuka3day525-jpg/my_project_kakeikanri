@@ -119,6 +119,7 @@ def csv_upload(request):#requestには、ブラウザから送られてきた情
 
 @login_required
 def ginkou_upload(request):
+
     household = request.user.households.first()
     if request.method == "POST":#CSVを選んで「取り込む」ボタンを押したときはPOST→入力されたCSVと対象月を受け取る
         form = CsvUploadForm_Bank(#送信された内容をCsvUploadFormに渡している。
@@ -130,35 +131,29 @@ def ginkou_upload(request):
             bank_choice = form.cleaned_data["bank_choice"]
             uploaded_file = form.cleaned_data["csv_file"]#検証済みフォームから、アップロードされたCSVファイルを取り出してる。cleaned_dataは、フォームのチェックが終わって、安全に使える状態になった値
             billing_month = form.cleaned_data["billing_month"]#同じように対象月を取り出す。
-
-
-            # アップロードされたExcelファイルを開く
-            workbook = load_workbook(
-                uploaded_file,
-                data_only=True,
-            )
-
-            # Excelの最初のシートを取得
-            sheet = workbook.active
-
+            
             if bank_choice == "rakuten":
+
+                text_file = io.TextIOWrapper(
+                    uploaded_file.file,
+                    encoding="cp932",
+                )
+
+                reader = csv.reader(text_file)
+                next(reader)  # 見出しを飛ばす
 
                 ai_target_pks=[]
 
-                # 2行目から1行ずつ読む
-                # min_row=2なので、1行目の見出しは自動的に飛ばす
-                for row in sheet.iter_rows(
-                    min_row=2,
-                    values_only=True,
-                ):
+                for row in reader:
+
                     if not row:
                         continue
 
                     # 1列目：取引日
-                    if row[0] is None:
+                    if not row[0]:
                         continue
 
-                    date_text = str(row[0]).strip()
+                    date_text = row[0].strip()
 
                     try:
                         used_date = datetime.strptime(
@@ -170,7 +165,8 @@ def ginkou_upload(request):
 
 
                     if used_date.strftime("%Y-%m") == billing_month:
-                        category, classification_method = classify_bank_category(str(row[3]),household)
+                        store_name = row[3].strip()
+                        category, classification_method = classify_bank_category(store_name,household)
 
                         rakuten,created = Bank.objects.get_or_create(#同じ明細があるか確認して、なければ新しく作る
                             household=household,
@@ -180,7 +176,7 @@ def ginkou_upload(request):
                             amount=int(row[1]),
                             zankin=int(row[2]),
                             billing_month=billing_month,
-                            store_name=str(row[3]),
+                            store_name=store_name,
                             defaults={
                                 "category": category,
                                 "classification_method": classification_method,
@@ -216,58 +212,82 @@ def ginkou_upload(request):
                                       
 
             elif bank_choice == "ufj":
-                # 2行目から1行ずつ読む
-                # min_row=2なので、1行目の見出しは自動的に飛ばす
 
-                ai_target_pks=[]
+                uploaded_file.seek(0) #ファイルの先頭に戻れ
+                text = uploaded_file.read().decode("cp932")
+# decode("cp932")を使うと、
+# バイナリ
+# ↓
+# cp932として解読
+# ↓
+# 日本語の文字列
+                df = pd.read_csv(
+                    io.StringIO(text)
+                )
+# はCSVファイルっぽいものを受け取りたいから、
+# 普通の文字列
+# ↓
+# StringIO
+# ↓
+# 仮想的なCSVファイル
 
-                for row in sheet.iter_rows(
-                    min_row=2,
-                    values_only=True,
-                ):
-                    if not row:
+# にして渡してる。
+
+                ai_target_pks = []
+
+                 # 金額を数値化,「お支払金額の列を数値型に変換。変換できないものはNaNにする」
+                df["支払い金額"] = pd.to_numeric(
+                    df["支払い金額"].astype(str).str.replace(",", "",regex=False),
+                    errors="coerce"
+                )
+
+                df["預かり金額"] = pd.to_numeric(
+                    df["預かり金額"].astype(str).str.replace(",", "",regex=False),
+                    errors="coerce"
+                )
+
+                df["差引残高"] = pd.to_numeric(
+                    df["差引残高"].astype(str).str.replace(",", "",regex=False),
+                    errors="coerce"
+                )
+
+                 # 入出金列を作る
+                df["入出金"] = (
+                    df["預かり金額"].fillna(0)
+                    -
+                    df["支払い金額"].fillna(0)
+                )
+
+                for _, row in df.iterrows():#これは、DataFrameの中身を1行ずつ取り出して処理するための書き方だよ。
+
+                    if pd.isna(row["日付"]):
                         continue
 
-                    # 1列目：取引日
-                    if row[0] is None:
+                    date_text = str(row["日付"]).strip()
+
+                    try:
+                        used_date = datetime.strptime(
+                            date_text,
+                            "%Y/%m/%d",
+                        ).date()
+                    except ValueError:
+                        print("エラー起きてる")
                         continue
-
-                    if isinstance(row[0], datetime):
-                        used_date = row[0].date()
-                    else:
-                        date_text = str(row[0]).strip()
-
-                        try:
-                            used_date = datetime.strptime(
-                                date_text,
-                                "%Y/%m/%d",
-                            ).date()
-                        except ValueError:
-                            continue
-# 何をしているか
-# Excelのrow[0]
-#        ↓
-#        ├─ datetime型？
-#        │      ↓ YES
-#        │   .date()で日付にする
-#        │
-#        └─ 文字列？
-#               ↓
-#         "%Y/%m/%d"で変換
 
                 
                     if used_date.strftime("%Y-%m") == billing_month:
-                        category, classification_method = classify_bank_category(str(row[2]),household)
+                        store_name = str(row["摘要内容"])
+                        category, classification_method = classify_bank_category(store_name,household)
                         ufj,created = Bank.objects.get_or_create(#同じ明細があるか確認して、なければ新しく作る
                             household=household,
                             owner=request.user,
                             bank=bank_choice,
                             used_date=used_date,
-                            amount=int(row[3]),
-                            zankin=int(row[5]),
+                            amount=int(row["入出金"]),
+                            zankin=int(row["差引残高"]),
                             billing_month=billing_month,
-                            store_name=str(row[2]),
-                           defaults={
+                            store_name=store_name,
+                            defaults={
                                 "category": category,
                                 "classification_method": classification_method,
                             },
@@ -302,53 +322,85 @@ def ginkou_upload(request):
 
             elif bank_choice == "roukin":
 
+                uploaded_file.seek(0) #ファイルの先頭に戻れ
+                text = uploaded_file.read().decode("cp932")
+
+                df = pd.read_csv(
+                    io.StringIO(text)
+                )
+
                 ai_target_pks=[]
 
-                for row in sheet.iter_rows(
-                    min_row=2,
-                    values_only=True,
-                ):
-                    if not row:
+# replace に対して、「これは正規表現として解釈しないで、普通の文字として置き換えてね」がregex=False
+
+                 # 金額を数値化,「お支払金額の列を数値型に変換。変換できないものはNaNにする」
+                df["お支払金額"] = pd.to_numeric(
+                    df["お支払金額"].astype(str)
+                    .str.replace("\\", "", regex=False)
+                    .str.replace(",", "", regex=False),
+                    errors="coerce"
+                )
+
+                df["お預り金額"] = pd.to_numeric(
+                    df["お預り金額"].astype(str)
+                    .str.replace("\\", "", regex=False)
+                    .str.replace(",", "", regex=False),
+                    errors="coerce"
+                )
+
+                df["残高"] = pd.to_numeric(
+                    df["残高"].astype(str)
+                    .str.replace("\\", "", regex=False)
+                    .str.replace(",", "", regex=False),
+                    errors="coerce"
+                )
+
+                 # 入出金列を作る
+                df["入出金"] = (
+                    df["お預り金額"].fillna(0)
+                    -
+                    df["お支払金額"].fillna(0)
+                )
+# たとえば、
+# お預り金額   お支払金額
+# 10000       NaN
+# NaN         3000
+# 5000        NaN
+# なら、fillna(0) で空欄を0にしてから計算するから、
+# お預り金額   お支払金額   入出金
+# 10000       0            10000
+# 0           3000         -3000
+# 5000        0            5000
+
+                for _, row in df.iterrows():#これは、DataFrameの中身を1行ずつ取り出して処理するための書き方だよ。
+
+                    if pd.isna(row["取扱日付"]):
                         continue
 
-                    if row[0] is None:
-                        continue
+                    date_text = str(row["取扱日付"]).strip()
+                    year = int(billing_month[:4])
 
-                    # 労金の日付はExcelのシリアル値になっている
-                    if isinstance(row[0], (int, float)):
-                        used_date = from_excel(
-                            row[0],
-                            workbook.epoch,
+                    try:
+                        used_date = datetime.strptime(
+                            f"{year}年{date_text}",
+                            "%Y年%m月%d日",
                         ).date()
-
-                    elif isinstance(row[0], datetime):
-                        used_date = row[0].date()
-
-                    elif isinstance(row[0], date):
-                        used_date = row[0]
-
-                    else:
-                        date_text = str(row[0]).strip()
-
-                        try:
-                            used_date = datetime.strptime(
-                                date_text,
-                                "%Y/%m/%d",
-                            ).date()
-                        except ValueError:
-                            continue
+                    except ValueError:
+                        continue
 
                     if used_date.strftime("%Y-%m") == billing_month:
-                        category, classification_method = classify_bank_category(str(row[6]),household)
+
+                        store_name = str(row["摘要"])
+                        category, classification_method = classify_bank_category(store_name,household)
                         roukin,created = Bank.objects.get_or_create(
                             household=household,
                             owner=request.user,
                             bank=bank_choice,
                             used_date=used_date,
-                            amount=int(row[2]),
-                            zankin=int(row[5]),
+                            amount=int(row["入出金"]),
+                            zankin=int(row["残高"]),
                             billing_month=billing_month,
-                            store_name=str(row[6]),
+                            store_name=store_name,
                             defaults={
                                 "category": category,
                                 "classification_method": classification_method,
