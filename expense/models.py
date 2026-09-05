@@ -222,6 +222,27 @@ class BankCategoryRule(models.Model):
     def __str__(self):
         return f"{self.keyword} → {self.category}"
 
+class Nisa(models.Model):
+    household = models.ForeignKey(
+            Household,
+            on_delete=models.CASCADE,
+            null=True,
+            blank=True,
+            related_name="nisa",
+    )
+
+    owner = models.ForeignKey(
+            settings.AUTH_USER_MODEL,
+            on_delete=models.CASCADE,
+            related_name="nisa",
+            null=True,
+            blank=True,
+    )
+    value = models.IntegerField("NISA残高")
+    recorded_date = models.DateField("更新日時",auto_now_add=True)#←このデータが初めて作成されたその時の日時を保存
+
+
+
  
 
 

@@ -19,9 +19,12 @@
 
 <p><a href="{% url 'expense:csv_upload' %}">CSVアップロード</a></p>
 <p><a href="{% url 'expense:ginkou_upload' %}">銀行アップロード</a></p>
+<p><a href="{% url 'expense:nisa_upload' %}">Nisaアップロード</a></p>
+
 <form method="post" action="{% url 'accounts:logout' %}">
     {% csrf_token %}
     <button type="submit">ログアウト</button>
+</form>
 <h1>{{ month }}家計管理</h1>
 
 <h2>カテゴリー別支出</h2>
@@ -64,6 +67,9 @@
 </table>
 
 <h1>楽天カード利用明細 世帯一覧</h1>
+<form method="post" action="{% url 'expense:bulk_save_rules' %}">
+<input type="hidden" name="month" value="{{ month }}">
+{% csrf_token %}
 
 <table border="1">
     <tr>
@@ -74,6 +80,7 @@
         <th>カテゴリー</th>
         <th>分類方法</th>
         <th>編集する</th>
+        <th>記憶</th>
     </tr>
 
     {% for expense in expenses %}
@@ -91,15 +98,31 @@
               変更
             </a>
         </td>
+        <td>
+            <input
+                type="checkbox"
+                name="selected_expenses"
+                value="{{ expense.pk }}"
+            >
+        </td>
+
     </tr>
     {% empty %}
     <tr>
-        <td colspan="7">明細がありません。</td>
+        <td colspan="8">明細がありません。</td>
         <!-- これは、表の4列分を横につなげて1つのセルにするという意味。普通に書くと1列分だけになるがcolspan="4"を付けると、4列分の幅を使って表示される。 -->
     </tr>
     {% endfor %}
 </table>
+<button type="submit">選択したカテゴリーを一括記憶</button>
+</form>
 
+
+
+
+<form method="post" action="{% url 'expense:bank_bulk_save_rules' %}">
+{% csrf_token %}
+<input type="hidden" name="month" value="{{ month }}">
 <h1>楽天銀行利用明細 世帯一覧</h1>
 
 <table border="1">
@@ -112,6 +135,7 @@
         <th>カテゴリー</th>
         <th>分類方法</th>
         <th>編集する</th>
+        <th>記憶</th>
     </tr>
 
     {% for rakuten in rakutens %}
@@ -130,10 +154,17 @@
               変更
             </a>
         </td>
+        <td>
+            <input
+                type="checkbox"
+                name="selected_banks"
+                value="{{ rakuten.pk }}"
+            >
+        </td>
     </tr>
     {% empty %}
     <tr>
-        <td colspan="8">明細がありません。</td>
+        <td colspan="9">明細がありません。</td>
         <!-- これは、表の4列分を横につなげて1つのセルにするという意味。普通に書くと1列分だけになるがcolspan="4"を付けると、4列分の幅を使って表示される。 -->
     </tr>
     {% endfor %}
@@ -151,6 +182,7 @@
         <th>カテゴリー</th>
         <th>分類方法</th>
         <th>編集する</th>
+        <th>記憶</th>
     </tr>
 
     {% for ufj in ufjs %}
@@ -169,10 +201,17 @@
               変更
             </a>
         </td>
+        <td>
+            <input
+                type="checkbox"
+                name="selected_banks"
+                value="{{ ufj.pk }}"
+            >
+        </td>
     </tr>
     {% empty %}
     <tr>
-        <td colspan="8">明細がありません。</td>
+        <td colspan="9">明細がありません。</td>
         <!-- これは、表の4列分を横につなげて1つのセルにするという意味。普通に書くと1列分だけになるがcolspan="4"を付けると、4列分の幅を使って表示される。 -->
     </tr>
     {% endfor %}
@@ -190,6 +229,7 @@
         <th>カテゴリー</th>
         <th>分類方法</th>
         <th>編集する</th>
+        <th>記憶</th>
     </tr>
 
     {% for roukin in roukins %}
@@ -208,20 +248,31 @@
               変更
             </a>
         </td>
+        <td>
+            <input
+                type="checkbox"
+                name="selected_banks"
+                value="{{ roukin.pk }}"
+            >
+        </td>
     </tr>
     {% empty %}
     <tr>
-        <td colspan="8">明細がありません。</td>
+        <td colspan="9">明細がありません。</td>
         <!-- これは、表の4列分を横につなげて1つのセルにするという意味。普通に書くと1列分だけになるがcolspan="4"を付けると、4列分の幅を使って表示される。 -->
     </tr>
     {% endfor %}
 </table>
-
+<button type="submit">選択したカテゴリーを一括記憶</button>
+</form>
 
 <hr>
 
 
 <h1>楽天カード利用明細 個人一覧</h1>
+<form method="post" action="{% url 'expense:bulk_save_rules' %}">
+<input type="hidden" name="month" value="{{ month }}">
+{% csrf_token %}
 
 <table border="1">
     <tr>
@@ -231,6 +282,7 @@
         <th>カテゴリー</th>
         <th>分類方法</th>
         <th>編集する</th>
+        <th>記憶</th>
     </tr>
 
     {% for expense in my_expenses %}
@@ -247,15 +299,28 @@
               変更
             </a>
         </td>
+        <td>
+            <input
+                type="checkbox"
+                name="selected_expenses"
+                value="{{ expense.pk }}"
+            >
+        </td>
+
     </tr>
     {% empty %}
     <tr>
-        <td colspan="6">明細がありません。</td>
+        <td colspan="7">明細がありません。</td>
         <!-- これは、表の4列分を横につなげて1つのセルにするという意味。普通に書くと1列分だけになるがcolspan="4"を付けると、4列分の幅を使って表示される。 -->
     </tr>
     {% endfor %}
 </table>
+<button type="submit">選択したカテゴリーを一括記憶</button>
+</form>
 
+<form method="post" action="{% url 'expense:bank_bulk_save_rules' %}">
+{% csrf_token %}
+<input type="hidden" name="month" value="{{ month }}">
 <h1>楽天銀行利用明細 個人一覧</h1>
 
 <table border="1">
@@ -267,6 +332,7 @@
         <th>カテゴリー</th>
         <th>分類方法</th>
         <th>編集する</th>
+        <th>記憶</th>
     </tr>
 
     {% for rakuten in my_rakutens %}
@@ -284,10 +350,17 @@
               変更
             </a>
         </td>
+        <td>
+            <input
+                type="checkbox"
+                name="selected_banks"
+                value="{{ rakuten.pk }}"
+            >
+        </td>
     </tr>
     {% empty %}
     <tr>
-        <td colspan="7">明細がありません。</td>
+        <td colspan="8">明細がありません。</td>
         <!-- これは、表の4列分を横につなげて1つのセルにするという意味。普通に書くと1列分だけになるがcolspan="4"を付けると、4列分の幅を使って表示される。 -->
     </tr>
     {% endfor %}
@@ -305,6 +378,7 @@
         <th>カテゴリー</th>
         <th>分類方法</th>
         <th>編集する</th>
+        <th>記憶</th>
     </tr>
 
     {% for ufj in my_ufjs %}
@@ -322,10 +396,17 @@
               変更
             </a>
         </td>
+        <td>
+            <input
+                type="checkbox"
+                name="selected_banks"
+                value="{{ ufj.pk }}"
+            >
+        </td>
     </tr>
     {% empty %}
     <tr>
-        <td colspan="7">明細がありません。</td>
+        <td colspan="8">明細がありません。</td>
         <!-- これは、表の4列分を横につなげて1つのセルにするという意味。普通に書くと1列分だけになるがcolspan="4"を付けると、4列分の幅を使って表示される。 -->
     </tr>
     {% endfor %}
@@ -344,6 +425,7 @@
         <th>カテゴリー</th>
         <th>分類方法</th>
         <th>編集する</th>
+        <th>記憶</th>
     </tr>
 
     {% for roukin in my_roukins %}
@@ -361,15 +443,24 @@
               変更
             </a>
         </td>
+        <td>
+            <input
+                type="checkbox"
+                name="selected_banks"
+                value="{{ roukin.pk }}"
+            >
+        </td>
     </tr>
     {% empty %}
     <tr>
-        <td colspan="7">明細がありません。</td>
+        <td colspan="8">明細がありません。</td>
         <!-- これは、表の4列分を横につなげて1つのセルにするという意味。普通に書くと1列分だけになるがcolspan="4"を付けると、4列分の幅を使って表示される。 -->
     </tr>
     {% endfor %}
 </table>
 {% endif %}
+<button type="submit">選択したカテゴリーを一括記憶</button>
+</form>
 
 
 </body>

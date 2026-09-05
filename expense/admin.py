@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Expense,ExpenseCategoryRule,BankCategoryRule,Bank,Household
+from .models import Expense,ExpenseCategoryRule,BankCategoryRule,Bank,Household,Nisa
 
 @admin.register(Expense)
 class ExpenseAdmin(admin.ModelAdmin):
@@ -37,6 +37,14 @@ class BankAdmin(admin.ModelAdmin):
         "store_name",
         "category",
         "classification_method",
+    )
+
+@admin.register(Nisa)
+class NisaAdmin(admin.ModelAdmin):
+    list_display = (
+        "owner",
+        "value",
+        "recorded_date"
     )
 
 @admin.register(Household)

@@ -12,7 +12,7 @@ from datetime import datetime,date,timedelta
 from .models import Expense,ExpenseCategoryRule,BankCategoryRule,Bank,Household
 from django.db.models import Sum
 from django.views.generic import UpdateView,View
-from .forms import ExpenseCategoryForm,BankCategoryForm,CsvUploadForm_Expense,CsvUploadForm_Bank
+from .forms import ExpenseCategoryForm,BankCategoryForm,CsvUploadForm_Expense,CsvUploadForm_Bank,NisaUploadForm
 from .utils import normalize_store_name,classify_category,classify_bank_category
 
 @login_required #「この下の関数を実行する前に、ログインしてるか確認してね」というデコレーター。
@@ -23,6 +23,8 @@ def csv_upload(request):#requestには、ブラウザから送られてきた情
             request.POST,#には普通の入力項目が入る。
             request.FILES,#にはアップロードされたファイルが入る。
         )
+
+        
 
         if form.is_valid():#フォームの入力内容に問題がないかチェック。CSVファイルが選択されているや対象月が入力されている
             csv_file = form.cleaned_data["csv_file"]#検証済みフォームから、アップロードされたCSVファイルを取り出してる。cleaned_dataは、フォームのチェックが終わって、安全に使える状態になった値
@@ -412,6 +414,34 @@ def ginkou_upload(request):
 # csv.reader
 # ↓
 # 1行ずつ読む
+@login_required
+def nisa_create(request):
+    if request.method == "POST":
+        form = NisaUploadForm(request.POST)
+
+        if form.is_valid():
+            nisa = form.save(commit=False) #まだ保存せずNIsaオブジェクトだけ作る、valueしか保存するとこがないがユーザーなどが入ってないため
+
+            nisa.owner = request.user
+            nisa.household = request.user.households.first()
+
+            nisa.save()
+            month = nisa.recorded_date.strftime("%Y-%m")
+            return redirect(#CSVを全部登録し終えたら、その月の一覧画面へ移動する。
+                "expense:expense_month",#billing_month = "2026-08"なら/expense/2026-08/へ
+                month=month,#<str:month>に2026-08を渡してる。
+            )
+    else:
+        form = NisaUploadForm()#新しいCSVアップロードフォームを作る。
+    return render(
+        request,
+        "expense/nisa_upload.html",
+        {
+            "form": form,
+        },
+    )
+    
+            
 
 @login_required
 def expense_index(request):
@@ -623,7 +653,50 @@ class BankDeleteView(LoginRequiredMixin,View):
         billing_month = bank.billing_month #削除前にオブジェクトを残した
         bank.delete()
         return redirect('expense:expense_month',month=billing_month)
-    
+
+def bulk_save_rules(request):
+    if request.method == "POST":
+        household = request.user.households.first()
+        selected_pks = request.POST.getlist(
+            "selected_expenses"
+        )
+        month = request.POST.get("month")
+        expenses = Expense.objects.filter(
+            pk__in=selected_pks,
+            household=household,
+        )
+        for expense in expenses:
+            ExpenseCategoryRule.objects.update_or_create(
+                household=household,
+                keyword=expense.store_name,
+                defaults={
+                    "category": expense.category
+                }
+            )
+    return redirect('expense:expense_month', month=month)
+
+def bank_bulk_save_rules(request):
+    if request.method == "POST":
+        household = request.user.households.first()
+        selected_pks = request.POST.getlist(
+            "selected_expenses"
+        )
+        month = request.POST.get("month")
+        expenses = Bank.objects.filter(
+            pk__in=selected_pks,
+            household=household,
+        )
+        for expense in expenses:
+            BankCategoryRule.objects.update_or_create(
+                household=household,
+                keyword=expense.store_name,
+                defaults={
+                    "category": expense.category
+                }
+            )
+    return redirect('expense:expense_month', month=month)
+
+
 expense_category_update = ExpenseCategoryUpdateView.as_view()
 ginkou_category_update = BankCategoryUpdateView.as_view()
 expense_delete = ExpenseDeleteView.as_view()

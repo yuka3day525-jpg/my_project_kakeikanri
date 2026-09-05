@@ -1,5 +1,5 @@
 from django.forms import BooleanField,ModelForm #formの基底クラス
-from .models import Expense,Bank
+from .models import Expense,Bank,Nisa
 from django import forms
 
 class BaseCategoryForm(ModelForm):
@@ -61,3 +61,11 @@ class CsvUploadForm_Bank(forms.Form):#CsvUploadFormはモデルと直接結び�
         max_length=7,
         help_text="例：2026-08",
     )
+
+class NisaUploadForm(ModelForm):
+    class Meta:
+        model = Nisa
+        fields = ["value"]
+        lebels = {"value":"NISA評価額"}
+
+    

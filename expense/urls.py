@@ -15,6 +15,11 @@ urlpatterns = [
         name="ginkou_upload"
 
     ),
+    path(
+        "nisa_upload/",
+        views.nisa_create,
+        name="nisa_upload"
+    ),
     path("", views.expense_index, name="expense_index"),#ログインした後の遷移先用
     path(
     "<str:month>/",#これで/expense/2026-07/ /expense/2026-08/が使える
@@ -40,5 +45,15 @@ urlpatterns = [
         "<int:pk>/rakuten_category/ginkou_delete",#<int:pk>は編集する明細のID。たとえばIDが3なら、http://127.0.0.1:8000/expense/3/category/になる。
         views.ginkou_delete,
         name="ginkou_delete",
+    ),
+    path(
+        "expense/bulk-save-rules/",
+        views.bulk_save_rules,
+        name="bulk_save_rules",
+    ),
+    path(
+            "expense/bank_bulk-save-rules/",
+            views.bank_bulk_save_rules,
+            name="bank_bulk_save_rules",
     ),
 ]
