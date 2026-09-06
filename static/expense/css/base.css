@@ -2,3 +2,10 @@
     width: 400px;
     height: 400px;
 }
+
+.new-label {
+    color: red;
+    font-weight: bold;
+    font-size: 12px;
+    margin-left: 4px;
+}

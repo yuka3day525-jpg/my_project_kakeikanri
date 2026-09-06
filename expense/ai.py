@@ -18,6 +18,11 @@ def gemini_predict_category(store_names):
 
 食費(外食)
 食費(自炊) 
+保険（家や生命など）
+プレゼント
+交通費
+車関係（ガソリン・車保険など）
+携帯料金
 日用品
 衣類
 娯楽・趣味
@@ -85,7 +90,8 @@ def bank_gemini_predict_category(store_names):
 現金引き出し
 国保・住民税・年金類
 娯楽・趣味
-食費
+食費(外食)
+食費(自炊) 
 NISA
 家賃
 カード引き落とし

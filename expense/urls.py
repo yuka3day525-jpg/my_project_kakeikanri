@@ -20,7 +20,9 @@ urlpatterns = [
         views.nisa_create,
         name="nisa_upload"
     ),
+    
     path("", views.expense_index, name="expense_index"),#ログインした後の遷移先用
+
     path(
     "<str:month>/",#これで/expense/2026-07/ /expense/2026-08/が使える
     views.expense_month,

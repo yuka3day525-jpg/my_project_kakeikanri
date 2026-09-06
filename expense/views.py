@@ -7,9 +7,10 @@ import pandas as pd
 
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.db.models import OuterRef, Subquery
 
 from datetime import datetime,date,timedelta
-from .models import Expense,ExpenseCategoryRule,BankCategoryRule,Bank,Household
+from .models import Expense,ExpenseCategoryRule,BankCategoryRule,Bank,Nisa,Household
 from django.db.models import Sum
 from django.views.generic import UpdateView,View
 from .forms import ExpenseCategoryForm,BankCategoryForm,CsvUploadForm_Expense,CsvUploadForm_Bank,NisaUploadForm
@@ -23,8 +24,6 @@ def csv_upload(request):#requestには、ブラウザから送られてきた情
             request.POST,#には普通の入力項目が入る。
             request.FILES,#にはアップロードされたファイルが入る。
         )
-
-        
 
         if form.is_valid():#フォームの入力内容に問題がないかチェック。CSVファイルが選択されているや対象月が入力されている
             csv_file = form.cleaned_data["csv_file"]#検証済みフォームから、アップロードされたCSVファイルを取り出してる。cleaned_dataは、フォームのチェックが終わって、安全に使える状態になった値
@@ -102,8 +101,9 @@ def csv_upload(request):#requestには、ブラウザから送られてきた情
                     expense.save()
 
             return redirect(#CSVを全部登録し終えたら、その月の一覧画面へ移動する。
-                "expense:expense_month",#billing_month = "2026-08"なら/expense/2026-08/へ
-                month=billing_month,#<str:month>に2026-08を渡してる。
+                # "expense:expense_month",#billing_month = "2026-08"なら/expense/2026-08/へ
+                # month=billing_month,#<str:month>に2026-08を渡してる。
+                f"/expense/?new_month={billing_month}"
             )
 
     else:
@@ -435,8 +435,9 @@ def ginkou_upload(request):
                         bank.save()
 
             return redirect(#CSVを全部登録し終えたら、その月の一覧画面へ移動する。
-                "expense:expense_month",#billing_month = "2026-08"なら/expense/2026-08/へ
-                month=billing_month,#<str:month>に2026-08を渡してる。
+                # "expense:expense_month",#billing_month = "2026-08"なら/expense/2026-08/へ
+                # month=billing_month,#<str:month>に2026-08を渡してる。
+                "expense:expense_index",
             )
 
     else:
@@ -480,8 +481,9 @@ def nisa_create(request):
             nisa.save()
             month = nisa.recorded_date.strftime("%Y-%m")
             return redirect(#CSVを全部登録し終えたら、その月の一覧画面へ移動する。
-                "expense:expense_month",#billing_month = "2026-08"なら/expense/2026-08/へ
-                month=month,#<str:month>に2026-08を渡してる。
+                # "expense:expense_month",#billing_month = "2026-08"なら/expense/2026-08/へ
+                # month=month,#<str:month>に2026-08を渡してる。
+                "expense:expense_index",
             )
     else:
         form = NisaUploadForm()#新しいCSVアップロードフォームを作る。
@@ -493,17 +495,40 @@ def nisa_create(request):
         },
     )
     
-            
-
 @login_required
 def expense_index(request):
-    today = date.today()
-    first_day = today.replace(day=1)
-    last_month_day = first_day - timedelta(days=1)
-#これで１か月前のexpense_monthのページに行ってくれる
-    month = last_month_day.strftime("%Y-%m")
-    return redirect("expense:expense_month", month=month)
-#自動で/expense/2026-08/へつながる
+#     today = date.today()
+#     first_day = today.replace(day=1)
+#     last_month_day = first_day - timedelta(days=1)
+# #これで１か月前のexpense_monthのページに行ってくれる
+#     month = last_month_day.strftime("%Y-%m")
+    household = request.user.households.first() #でログイン中のユーザーが所属しているHouseholdを取得するfirstはログイン中ユーザーが所属している家計を1個取るいう意味
+    month_list = (
+    Expense.objects.filter(household=household).
+    values_list("billing_month", flat=True)#はExpenseの全項目じゃなくて、billing_monthだけ取り出す。flat=Trueがないと、
+# [("2026-07",), ("2026-07",), ("2026-08",), ("2026-08",)]みたいに1個ずつタプルになる。 今回は月だけ欲しいからflat=Trueで普通の値にしてる。
+    .distinct()#重複を消す。
+    .order_by("-billing_month")
+    )
+    new_month = request.GET.get("new_month")
+    latest_nisa = Nisa.objects.filter(household=household,owner=OuterRef("owner")).order_by("-recorded_date","-pk",)
+    nisa_list = (
+    Nisa.objects.filter(
+        household=household,
+        pk=Subquery(
+            latest_nisa.values("pk")[:1]
+        )
+    ).select_related("owner"))
+
+
+    return render(
+            request,"expense/index.html",
+            {
+             "month_list": month_list,
+             "new_month": new_month,
+             "nisa_list": nisa_list,
+            }
+        )
 
 @login_required
 def expense_month(request,month):
@@ -519,6 +544,7 @@ def expense_month(request,month):
     rakuten_list = Bank.objects.filter(household=household,billing_month=month,bank="rakuten").order_by("-used_date")
     ufj_list = Bank.objects.filter(household=household,billing_month=month,bank="ufj").order_by("-used_date")
     roukin_list = Bank.objects.filter(household=household,billing_month=month,bank="roukin").order_by("-used_date")
+
 
     month_list = (
     Expense.objects.filter(household=household).

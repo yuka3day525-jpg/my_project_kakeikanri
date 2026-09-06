@@ -108,7 +108,8 @@ class Bank(models.Model):
         ("家具家電・設備", "家具家電・設備"),
         ("保険（家や生命など）", "保険（家や生命など）"),
         ("日用品", "日用品"),
-        ("食費", "食費"),
+        ("食費(自炊)", "食費(自炊)"),
+        ("食費(外食)", "食費(外食)"),
         ("衣類", "衣類"),
         ("その他", "その他"),
         ("未分類", "未分類"),
@@ -240,7 +241,7 @@ class Nisa(models.Model):
             blank=True,
     )
     value = models.IntegerField("NISA残高")
-    recorded_date = models.DateField("更新日時",auto_now_add=True)#←このデータが初めて作成されたその時の日時を保存
+    recorded_date = models.DateField("更新日時",auto_now=True)#←このデータが初めて作成されたその時の日時を保存
 
 
 

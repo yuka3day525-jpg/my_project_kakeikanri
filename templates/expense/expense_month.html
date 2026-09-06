@@ -9,6 +9,8 @@
 </head>
 <body>
 
+<p><a href="{% url 'expense:expense_index' %}">トップへ</a></p>
+
 <p>
     {% for item in month_list %}
         <a href="{% url 'expense:expense_month' item %}">
@@ -17,14 +19,6 @@
     {% endfor %}
 </p>
 
-<p><a href="{% url 'expense:csv_upload' %}">CSVアップロード</a></p>
-<p><a href="{% url 'expense:ginkou_upload' %}">銀行アップロード</a></p>
-<p><a href="{% url 'expense:nisa_upload' %}">Nisaアップロード</a></p>
-
-<form method="post" action="{% url 'accounts:logout' %}">
-    {% csrf_token %}
-    <button type="submit">ログアウト</button>
-</form>
 <h1>{{ month }}家計管理</h1>
 
 <h2>カテゴリー別支出</h2>

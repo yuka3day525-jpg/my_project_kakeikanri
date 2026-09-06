@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>タイトル</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'expense/css/base.css' %}">
+
+</head>
+<body>
+
+<h1>ふたりの家計簿</h1>
+
+<form method="post" action="{% url 'accounts:logout' %}">
+    {% csrf_token %}
+    <button type="submit">ログアウト</button>
+</form>
+
+<p><a href="{% url 'expense:csv_upload' %}">クレジットカードアップロード</a></p>
+<p><a href="{% url 'expense:ginkou_upload' %}">銀行アップロード</a></p>
+<p><a href="{% url 'expense:nisa_upload' %}">Nisaアップロード</a></p>
+
+{% for month in month_list %}
+    <a href="{% url 'expense:expense_month' month %}">
+        {{ month }}
+    </a>
+    {% if month == new_month %}
+        <span class="new-label">← NEW</span>
+    {% endif %}
+{% endfor %}
+
+<h2>現在のNISA</h2>
+{% for nisa in nisa_list %}
+    <p>
+        {{ nisa.owner }}：
+        {{ nisa.value }}円
+    </p>
+{% endfor %}
+
+
+
+
+</body>
+</html>
