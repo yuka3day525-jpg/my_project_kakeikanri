@@ -512,21 +512,56 @@ def expense_index(request):
     )
     new_month = request.GET.get("new_month")
     latest_nisa = Nisa.objects.filter(household=household,owner=OuterRef("owner")).order_by("-recorded_date","-pk",)
-    nisa_list = (
-    Nisa.objects.filter(
-        household=household,
-        pk=Subquery(
-            latest_nisa.values("pk")[:1]
+    nisa_list = (Nisa.objects.filter(household=household,pk=Subquery(latest_nisa.values("pk")[:1])).select_related("owner"))
+
+    latest_bank = Bank.objects.filter(household=household,owner=OuterRef("owner"),bank=OuterRef("bank"),).order_by("-used_date","-pk",)
+    bank_balances = (Bank.objects.filter(household=household,pk=Subquery(latest_bank.values("pk")[:1])).select_related("owner"))
+
+    asset_by_user = {}
+
+    for bank in bank_balances:
+        username = bank.owner.username
+
+        if username not in asset_by_user:
+            asset_by_user[username] = {
+                "bank": 0,
+                "nisa": 0,
+                "total": 0,
+            }
+
+        asset_by_user[username]["bank"] += bank.zankin
+
+    for nisa in nisa_list:
+        username = nisa.owner.username
+
+        if username not in asset_by_user:
+            asset_by_user[username] = {
+                "bank": 0,
+                "nisa": 0,
+                "total": 0,
+            }
+
+        asset_by_user[username]["nisa"] += nisa.value
+
+    for data in asset_by_user.values():
+        data["total"] = (
+            data["bank"]
+            + data["nisa"]
         )
-    ).select_related("owner"))
 
-
+    household_total_assets = sum(
+        data["total"]
+        for data in asset_by_user.values()
+    )
     return render(
             request,"expense/index.html",
             {
              "month_list": month_list,
              "new_month": new_month,
              "nisa_list": nisa_list,
+             "bank_balances": bank_balances,
+             "asset_by_user": asset_by_user,
+             "household_total_assets": household_total_assets,
             }
         )
 
@@ -655,10 +690,29 @@ def expense_month(request,month):
         food_pivot.get("食費(自炊)", pd.Series(0, index=food_pivot.index))
         .tolist())
 
-    
+    #評価損益
+    income_data = Bank.objects.filter(household=household,amount__gt=0,category__in=["給料", "サービス(還元など)"],).values(#amount__gt=0 はDjango ORMで、「amount が 0 より大きいデータだけ」
+                "billing_month","amount",)
+    expense2_data = (Bank.objects.filter(household=household,amount__lt=0,).exclude(
+                category__in=["給料","サービス(還元など)","NISA",]).values(
+                "billing_month","amount",))
 
+    income_df = pd.DataFrame(income_data,columns=["billing_month", "amount"])
+    expense2_df = pd.DataFrame(expense2_data,columns=["billing_month", "amount"])
+    expense2_df["amount"] = expense2_df["amount"].abs()
 
+    income_monthly = (income_df.groupby("billing_month")["amount"].sum())
+    expense_monthly = (expense2_df.groupby("billing_month")["amount"].sum())
 
+    profit_df = pd.concat([income_monthly, expense_monthly],axis=1,keys=["income", "expense"]).fillna(0)
+    profit_df["profit"] = (profit_df["income"]- profit_df["expense"])#新しくprofit列を作って、income列からexpense列を引いた値を入れる
+
+    profit_labels = profit_df.index.tolist()
+    profit_income_values = profit_df["income"].tolist()
+    profit_expense_values = profit_df["expense"].tolist()
+    profit_values = profit_df["profit"].tolist()
+
+          
     bank_data2 = Bank.objects.filter(household=household,billing_month=month,).values("used_date","amount","category","owner",)
     category_totals = (
             Expense.objects.filter(household=household,billing_month=month).
@@ -692,9 +746,11 @@ def expense_month(request,month):
         "food_home_values": food_home_values,
          "owner_labels": owner_labels,
          "owner_values": owner_values,
-
+         "profit_labels": profit_labels,
+         "profit_values": profit_values,
+         "profit_income_values": profit_income_values,
+         "profit_expense_values": profit_expense_values,
          "category_totals": category_totals,
-
          },
     )
 

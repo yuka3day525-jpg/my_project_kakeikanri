@@ -58,6 +58,17 @@
 {{ owner_values|json_script:"owner-values" }}
 </div>
 
+<h2>評価損益</h2>
+
+<div class="chart-box">
+    <canvas id="profitChart"></canvas>
+
+    {{ profit_labels|json_script:"profit-labels" }}
+    {{ profit_income_values|json_script:"profit-income-values" }}
+    {{ profit_expense_values|json_script:"profit-expense-values" }}
+    {{ profit_values|json_script:"profit-values" }}
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="{% static 'expense/js/expense_chart.js' %}"></script>
 

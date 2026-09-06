@@ -183,3 +183,54 @@ new Chart(foodCtx, {
         }
     }
 });
+
+// 評価損益
+const profitLabels = JSON.parse(
+    document.getElementById("profit-labels").textContent
+);
+
+const profitIncomeValues = JSON.parse(
+    document.getElementById("profit-income-values").textContent
+);
+
+const profitExpenseValues = JSON.parse(
+    document.getElementById("profit-expense-values").textContent
+);
+
+const profitValues = JSON.parse(
+    document.getElementById("profit-values").textContent
+);
+
+const profitCtx = document.getElementById("profitChart");
+
+new Chart(profitCtx, {
+    type: "bar",
+
+    data: {
+        labels: profitLabels,
+        datasets: [
+            {
+                label: "収入",
+                data: profitIncomeValues,
+            },
+            {
+                label: "支出",
+                data: profitExpenseValues,
+            },
+            {
+                label: "損益",
+                data: profitValues,
+                type: "line",
+            }
+        ]
+    },
+
+    options: {
+        responsive: true,
+        scales: {
+            y: {
+                beginAtZero: true
+            }
+        }
+    }
+});

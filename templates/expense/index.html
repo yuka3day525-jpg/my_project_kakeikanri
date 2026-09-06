@@ -37,6 +37,25 @@
     </p>
 {% endfor %}
 
+<h2>世帯の全財産</h2>
+<p>
+    {{ household_total_assets }} 円
+</p>
+
+<h2>ユーザー別資産</h2>
+{% for username, data in asset_by_user.items %}
+    <h3>{{ username }}</h3>
+    <p>
+        銀行残高：
+        {{ data.bank }} 円
+    </p>
+    <p>
+        合計：
+        {{ data.total }} 円
+    </p>
+
+{% endfor %}
+
 
 
 
