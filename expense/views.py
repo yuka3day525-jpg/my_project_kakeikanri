@@ -559,7 +559,7 @@ def expense_month(request,month):
     my_ufjs = Bank.objects.filter(household=household,owner=request.user,billing_month=month,bank="ufj",).order_by("-used_date")
     my_roukins = Bank.objects.filter(household=household,owner=request.user,billing_month=month,bank="roukin",).order_by("-used_date")
 
-    #世帯円グラフ用
+    #カテゴリー別支出、円グラフ
     expense_data = Expense.objects.filter(household=household,billing_month=month,).values("used_date","amount","category","owner__username")#owner はユーザーIDになるから変えた
     bank_data = Bank.objects.filter(household=household,billing_month=month,).exclude(
                 category__in=["カード引き落とし","送金","入金","給料","サービス(還元など)","その他","未分類"
@@ -567,18 +567,58 @@ def expense_month(request,month):
                 "used_date","amount","category","owner__username",)
     expense_df = pd.DataFrame(expense_data,columns=["used_date","amount","category","owner__username",])
     bank_df = pd.DataFrame(bank_data,columns=["used_date","amount","category","owner__username",])
-    bank_df = bank_df[bank_df["amount"] < 0].copy()
-    bank_df["amount"] = bank_df["amount"].abs()
+    bank_df = bank_df[bank_df["amount"] < 0].copy() #amount が0より小さい行だけ残す
+    bank_df["amount"] = bank_df["amount"].abs()#これは 絶対値にする って意味。
     all_df = pd.concat([expense_df, bank_df],ignore_index=True,)
-    category_df = (all_df.groupby("category")["amount"].sum().reset_index()) #reset_index() categoryを普通の列に戻す
+    category_group = {
+    "食費(外食)": "変動費",
+    "食費(自炊)": "変動費",
+    "日用品": "変動費",
+    "衣類": "変動費",
+    "娯楽・趣味": "変動費",
+    "サロン代": "変動費",
+    "プレゼント": "変動費",
+    "交通費": "変動費",
+
+    "車関係（ガソリン・車保険など）": "車関係",
+    "ETC": "車関係",
+
+    "旅行・レジャー": "旅費",
+
+    "家賃": "固定費",
+    "光熱費": "固定費",
+    "国保・住民税・年金類": "固定費",
+    "保険（家や生命など）": "固定費",
+    "定期代": "固定費",
+    "サブスク": "固定費",
+    "携帯料金": "固定費",
+
+    "家具家電・設備": "特別費",
+    "医療費": "特別費",
+
+    "その他": "その他",
+
+    "現金引き出し": "現金引き出し",
+
+    "NISA": "貯蓄・投資",}
+
+    all_df["category_group"] = (all_df["category"].map(category_group).fillna("その他")) #category_groupの辞書にないカテゴリーは、その他にする
+    category_df = (all_df.groupby("category_group")["amount"].sum().reset_index()) #reset_index() categoryを普通の列に戻す
     # Chart.jsに渡せるPythonのリストに変換する。
-    chart_labels = category_df["category"].tolist()
+    chart_labels = category_df["category_group"].tolist()
     chart_values = category_df["amount"].tolist()
 
-    #ユーザー割合用
+    # 細かいカテゴリの横棒グラフ（世帯）
+    detail_category_df = (all_df.groupby("category")["amount"].sum().reset_index().sort_values("amount", ascending=False))
+
+    detail_chart_labels = detail_category_df["category"].tolist()
+    detail_chart_values = detail_category_df["amount"].tolist()
+
+    #利用者別支出、円グラフ
     owner_df = (all_df.groupby("owner__username")["amount"].sum().reset_index())
     owner_labels = owner_df["owner__username"].tolist()
     owner_values = owner_df["amount"].tolist()
+    
 
     #世帯支出推移
     sisyutu_date = Bank.objects.filter(household=household,category__in=[
@@ -592,8 +632,31 @@ def expense_month(request,month):
     monthly_labels = monthly_df["billing_month"].tolist()
     monthly_values = monthly_df["amount"].tolist()
 
+    # 食費推移用
+    food_expense_data = Expense.objects.filter(household=household,category__in=["食費(外食)", "食費(自炊)"],
+        ).values("billing_month","amount","category",)
+    food_bank_data = Bank.objects.filter(household=household,category__in=["食費(外食)", "食費(自炊)"],
+        ).values("billing_month","amount","category",)
+    food_expense_df = pd.DataFrame(food_expense_data,
+        columns=["billing_month","amount","category",])
+    food_bank_df = pd.DataFrame(food_bank_data,
+        columns=["billing_month","amount","category",])
+    food_bank_df = food_bank_df[food_bank_df["amount"] < 0].copy()
+    food_bank_df["amount"] = food_bank_df["amount"].abs()
+    food_df = pd.concat([food_expense_df, food_bank_df],ignore_index=True,)
+    food_monthly_df = (food_df.groupby(["billing_month", "category"])["amount"].sum().reset_index())
 
-                
+    food_pivot = food_monthly_df.pivot(index="billing_month",columns="category",values="amount").fillna(0)
+    food_monthly_labels = food_pivot.index.tolist()
+    food_out_values = (
+        food_pivot.get("食費(外食)", pd.Series(0, index=food_pivot.index))
+        .tolist())
+    food_home_values = (
+        food_pivot.get("食費(自炊)", pd.Series(0, index=food_pivot.index))
+        .tolist())
+
+    
+
 
 
     bank_data2 = Bank.objects.filter(household=household,billing_month=month,).values("used_date","amount","category","owner",)
@@ -620,8 +683,13 @@ def expense_month(request,month):
 
          "chart_labels": chart_labels,
          "chart_values": chart_values,
+         "detail_chart_labels": detail_chart_labels,
+         "detail_chart_values": detail_chart_values,
          "monthly_labels" : monthly_labels,
          "monthly_values" : monthly_values,
+         "food_monthly_labels": food_monthly_labels,
+        "food_out_values": food_out_values,
+        "food_home_values": food_home_values,
          "owner_labels": owner_labels,
          "owner_values": owner_values,
 

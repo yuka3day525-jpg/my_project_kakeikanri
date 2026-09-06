@@ -1,6 +1,6 @@
 console.log("expense_chart.js 読み込み成功");
 
-// 円グラフ
+//カテゴリー別支出、円グラフ
 const chartLabels = JSON.parse(
     document.getElementById("chart-labels").textContent
 );
@@ -27,6 +27,50 @@ new Chart(ctx, {
     maintainAspectRatio: false,
     }
 });
+
+// 細かいカテゴリの横棒グラフ（世帯）
+const detailLabels = JSON.parse(
+    document.getElementById("detail-chart-labels").textContent
+);
+
+const detailValues = JSON.parse(
+    document.getElementById("detail-chart-values").textContent
+);
+
+const detailCtx = document.getElementById("detailCategoryChart");
+
+new Chart(detailCtx, {
+    type: "bar",
+    data: {
+        labels: detailLabels,
+        datasets: [{
+            label: "カテゴリ別支出",
+            data: detailValues,
+        }]
+    },
+    options: {
+        indexAxis: "y",
+        responsive: true,
+        maintainAspectRatio: false,
+
+        layout: {
+            padding: {
+                left: 30
+            }
+        },
+
+        scales: {
+            y: {
+                ticks: {
+                    font: {
+                        size: 11
+                    }
+                }
+            }
+        }
+    }
+});
+
 
 // ユーザー別
 const ownerLabels = JSON.parse(
@@ -56,13 +100,8 @@ new Chart(ownerCtx, {
     }
 });
 
-// --------------------
-// 月ごとの支出推移
-// --------------------
-console.log(document.getElementById("monthly-labels"));
-console.log(document.getElementById("monthly-values"));
-console.log(document.getElementById("monthlyChart"));
 
+//  世帯支出推移
 const monthlyLabels = JSON.parse(
     document.getElementById("monthly-labels").textContent
 );
@@ -80,7 +119,7 @@ new Chart(monthlyCtx, {
         labels: monthlyLabels,
 
         datasets: [{
-            label: "月ごとの支出",
+            label: "世帯支出推移",
             data: monthlyValues,
         }]
     },
@@ -88,5 +127,59 @@ new Chart(monthlyCtx, {
     options: {
     responsive: true,
     maintainAspectRatio: false,
+    }
+});
+
+
+//  食費推移
+const foodLabels = JSON.parse(
+    document.getElementById("food-monthly-labels").textContent
+);
+
+const foodOutValues = JSON.parse(
+    document.getElementById("food-out-values").textContent
+);
+
+const foodHomeValues = JSON.parse(
+    document.getElementById("food-home-values").textContent
+);
+
+const foodCtx = document.getElementById("foodChart");
+
+new Chart(foodCtx, {
+    type: "line",
+
+    data: {
+        labels: foodLabels,
+
+        datasets: [
+            {
+                label: "外食",
+                data: foodOutValues,
+                tension: 0.3,
+            },
+            {
+                label: "自炊",
+                data: foodHomeValues,
+                tension: 0.3,
+            }
+        ]
+    },
+
+    options: {
+        responsive: true,
+
+        plugins: {
+            title: {
+                display: true,
+                text: "食費の月別推移"
+            }
+        },
+
+        scales: {
+            y: {
+                beginAtZero: true
+            }
+        }
     }
 });

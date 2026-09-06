@@ -21,20 +21,37 @@
 
 <h1>{{ month }}家計管理</h1>
 
-<h2>カテゴリー別支出</h2>
-
+<h2>カテゴリー別支出、円グラフ</h2>
 <div class="chart-box">
 <canvas id="categoryChart"></canvas>
 {{ chart_labels|json_script:"chart-labels" }}
 {{ chart_values|json_script:"chart-values" }}
 </div>
 
+<h2>細かいカテゴリの横棒グラフ（世帯）</h2>
+<div class="chart-bar">
+    <canvas id="detailCategoryChart"></canvas>
+    {{ detail_chart_labels|json_script:"detail-chart-labels" }}
+    {{ detail_chart_values|json_script:"detail-chart-values" }}
+</div>
+
+<h2>月別支出、折れ線グラフ(世帯)</h2>
 <div class="chart-box">
 <canvas id="monthlyChart"></canvas>
 {{ monthly_labels|json_script:"monthly-labels" }}
 {{ monthly_values|json_script:"monthly-values" }}
 </div>
 
+<h2>食費推移</h2>
+<div class="chart-box">
+    <canvas id="foodChart"></canvas>
+
+    {{ food_monthly_labels|json_script:"food-monthly-labels" }}
+    {{ food_out_values|json_script:"food-out-values" }}
+    {{ food_home_values|json_script:"food-home-values" }}
+</div>
+
+<h2>利用者別支出、円グラフ</h2>
 <div class="chart-box">
 <canvas id="ownerChart"></canvas>
 {{ owner_labels|json_script:"owner-labels" }}
