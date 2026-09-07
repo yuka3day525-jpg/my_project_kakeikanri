@@ -15,6 +15,9 @@ from django.db.models import Sum
 from django.views.generic import UpdateView,View
 from .forms import ExpenseCategoryForm,BankCategoryForm,CsvUploadForm_Expense,CsvUploadForm_Bank,NisaUploadForm
 from .utils import normalize_store_name,classify_category,classify_bank_category
+from .chart import (
+    make_category_chart,make_expense_trend_chart,make_food_chart,make_profit_chart,
+)
 
 @login_required #「この下の関数を実行する前に、ログインしてるか確認してね」というデコレーター。
 def csv_upload(request):#requestには、ブラウザから送られてきた情報が入る。
@@ -594,128 +597,60 @@ def expense_month(request,month):
     my_ufjs = Bank.objects.filter(household=household,owner=request.user,billing_month=month,bank="ufj",).order_by("-used_date")
     my_roukins = Bank.objects.filter(household=household,owner=request.user,billing_month=month,bank="roukin",).order_by("-used_date")
 
-    #カテゴリー別支出、円グラフ
-    expense_data = Expense.objects.filter(household=household,billing_month=month,).values("used_date","amount","category","owner__username")#owner はユーザーIDになるから変えた
-    bank_data = Bank.objects.filter(household=household,billing_month=month,).exclude(
-                category__in=["カード引き落とし","送金","入金","給料","サービス(還元など)","その他","未分類"
-                ]).values(
-                "used_date","amount","category","owner__username",)
-    expense_df = pd.DataFrame(expense_data,columns=["used_date","amount","category","owner__username",])
-    bank_df = pd.DataFrame(bank_data,columns=["used_date","amount","category","owner__username",])
-    bank_df = bank_df[bank_df["amount"] < 0].copy() #amount が0より小さい行だけ残す
-    bank_df["amount"] = bank_df["amount"].abs()#これは 絶対値にする って意味。
-    all_df = pd.concat([expense_df, bank_df],ignore_index=True,)
-    category_group = {
-    "食費(外食)": "変動費",
-    "食費(自炊)": "変動費",
-    "日用品": "変動費",
-    "衣類": "変動費",
-    "娯楽・趣味": "変動費",
-    "サロン代": "変動費",
-    "プレゼント": "変動費",
-    "交通費": "変動費",
+    household_category = (
+        make_category_chart(
+            household,
+            month,
+        )
+    )
 
-    "車関係（ガソリン・車保険など）": "車関係",
-    "ETC": "車関係",
+    household_expense_trend = (
+        make_expense_trend_chart(
+            household
+        )
+    )
 
-    "旅行・レジャー": "旅費",
+    household_food = (
+        make_food_chart(
+            household
+        )
+    )
 
-    "家賃": "固定費",
-    "光熱費": "固定費",
-    "国保・住民税・年金類": "固定費",
-    "保険（家や生命など）": "固定費",
-    "定期代": "固定費",
-    "サブスク": "固定費",
-    "携帯料金": "固定費",
+    household_profit = (
+        make_profit_chart(
+            household
+        )
+    )
 
-    "家具家電・設備": "特別費",
-    "医療費": "特別費",
+    my_category = (
+        make_category_chart(
+            household,
+            month,
+            request.user,
+        )
+    )
 
-    "その他": "その他",
+    my_expense_trend = (
+        make_expense_trend_chart(
+            household,
+            request.user,
+        )
+    )
 
-    "現金引き出し": "現金引き出し",
+    my_food = (
+        make_food_chart(
+            household,
+            request.user,
+        )
+    )
 
-    "NISA": "貯蓄・投資",}
-
-    all_df["category_group"] = (all_df["category"].map(category_group).fillna("その他")) #category_groupの辞書にないカテゴリーは、その他にする
-    category_df = (all_df.groupby("category_group")["amount"].sum().reset_index()) #reset_index() categoryを普通の列に戻す
-    # Chart.jsに渡せるPythonのリストに変換する。
-    chart_labels = category_df["category_group"].tolist()
-    chart_values = category_df["amount"].tolist()
-
-    # 細かいカテゴリの横棒グラフ（世帯）
-    detail_category_df = (all_df.groupby("category")["amount"].sum().reset_index().sort_values("amount", ascending=False))
-
-    detail_chart_labels = detail_category_df["category"].tolist()
-    detail_chart_values = detail_category_df["amount"].tolist()
-
-    #利用者別支出、円グラフ
-    owner_df = (all_df.groupby("owner__username")["amount"].sum().reset_index())
-    owner_labels = owner_df["owner__username"].tolist()
-    owner_values = owner_df["amount"].tolist()
+    my_profit = (
+        make_profit_chart(
+            household,
+            request.user,
+        )
+    )
     
-
-    #世帯支出推移
-    sisyutu_date = Bank.objects.filter(household=household,category__in=[
-        "現金引き出し","国保・住民税・年金類","娯楽・趣味","家賃","NISA","カード引き落とし","家具家電・設備","保険（家や生命など）","日用品","衣類"
-    ]).values("billing_month","amount","category",)
-    sisyutu_df = pd.DataFrame(sisyutu_date,columns=["billing_month", "amount", "category"])
-    sisyutu_df = sisyutu_df[sisyutu_df["amount"] < 0].copy()
-    sisyutu_df["amount"] = sisyutu_df["amount"].abs()
-    monthly_df = (sisyutu_df.groupby("billing_month")["amount"].sum().reset_index().sort_values("billing_month"))
-    
-    monthly_labels = monthly_df["billing_month"].tolist()
-    monthly_values = monthly_df["amount"].tolist()
-
-    # 食費推移用
-    food_expense_data = Expense.objects.filter(household=household,category__in=["食費(外食)", "食費(自炊)"],
-        ).values("billing_month","amount","category",)
-    food_bank_data = Bank.objects.filter(household=household,category__in=["食費(外食)", "食費(自炊)"],
-        ).values("billing_month","amount","category",)
-    food_expense_df = pd.DataFrame(food_expense_data,
-        columns=["billing_month","amount","category",])
-    food_bank_df = pd.DataFrame(food_bank_data,
-        columns=["billing_month","amount","category",])
-    food_bank_df = food_bank_df[food_bank_df["amount"] < 0].copy()
-    food_bank_df["amount"] = food_bank_df["amount"].abs()
-    food_df = pd.concat([food_expense_df, food_bank_df],ignore_index=True,)
-    food_monthly_df = (food_df.groupby(["billing_month", "category"])["amount"].sum().reset_index())
-
-    food_pivot = food_monthly_df.pivot(index="billing_month",columns="category",values="amount").fillna(0)
-    food_monthly_labels = food_pivot.index.tolist()
-    food_out_values = (
-        food_pivot.get("食費(外食)", pd.Series(0, index=food_pivot.index))
-        .tolist())
-    food_home_values = (
-        food_pivot.get("食費(自炊)", pd.Series(0, index=food_pivot.index))
-        .tolist())
-
-    #評価損益
-    income_data = Bank.objects.filter(household=household,amount__gt=0,category__in=["給料", "サービス(還元など)"],).values(#amount__gt=0 はDjango ORMで、「amount が 0 より大きいデータだけ」
-                "billing_month","amount",)
-    expense2_bankdata = (Bank.objects.filter(household=household,amount__lt=0,).exclude(
-                category__in=["給料","サービス(還元など)","NISA","送金","入金","カード引き落とし"]).values(
-                "billing_month","amount",))
-    expense2_carddata = Expense.objects.filter(household=household).exclude(category__in=["NISA"]).values("billing_month","amount",)
-
-    income_df = pd.DataFrame(income_data,columns=["billing_month", "amount"])
-    expense2_bank_df = pd.DataFrame(expense2_bankdata,columns=["billing_month", "amount"])
-    expense2_bank_df["amount"] = expense2_bank_df["amount"].abs()
-    expense2_card_df = pd.DataFrame(expense2_carddata,columns=["billing_month", "amount"])
-    expense2_card_df["amount"] = expense2_card_df["amount"].abs()
-    expense2_df = pd.concat([expense2_bank_df, expense2_card_df],ignore_index=True,)
-
-    income_monthly = (income_df.groupby("billing_month")["amount"].sum())
-    expense_monthly = (expense2_df.groupby("billing_month")["amount"].sum())
-
-    profit_df = pd.concat([income_monthly, expense_monthly],axis=1,keys=["income", "expense"]).fillna(0)
-    profit_df["profit"] = (profit_df["income"]- profit_df["expense"])#新しくprofit列を作って、income列からexpense列を引いた値を入れる
-
-    profit_labels = profit_df.index.tolist()
-    profit_income_values = profit_df["income"].tolist()
-    profit_expense_values = profit_df["expense"].tolist()
-    profit_values = profit_df["profit"].tolist()
-
           
     bank_data2 = Bank.objects.filter(household=household,billing_month=month,).values("used_date","amount","category","owner",)
     category_totals = (
@@ -739,23 +674,146 @@ def expense_month(request,month):
          "my_ufjs":my_ufjs,
          "my_roukins":my_roukins,
 
-         "chart_labels": chart_labels,
-         "chart_values": chart_values,
-         "detail_chart_labels": detail_chart_labels,
-         "detail_chart_values": detail_chart_values,
-         "monthly_labels" : monthly_labels,
-         "monthly_values" : monthly_values,
-         "food_monthly_labels": food_monthly_labels,
-        "food_out_values": food_out_values,
-        "food_home_values": food_home_values,
-         "owner_labels": owner_labels,
-         "owner_values": owner_values,
-         "profit_labels": profit_labels,
-         "profit_values": profit_values,
-         "profit_income_values": profit_income_values,
-         "profit_expense_values": profit_expense_values,
-         "category_totals": category_totals,
-         },
+         # 世帯カテゴリー
+        "chart_labels":
+            household_category["labels"],
+
+        "chart_values":
+            household_category["values"],
+
+        "detail_chart_labels":
+            household_category[
+                "detail_labels"
+            ],
+
+        "detail_chart_values":
+            household_category[
+                "detail_values"
+            ],
+
+        # 利用者別
+        "owner_labels":
+            household_category[
+                "owner_labels"
+            ],
+
+        "owner_values":
+            household_category[
+                "owner_values"
+            ],
+
+        # 世帯支出推移
+        "monthly_labels":
+            household_expense_trend[
+                "labels"
+            ],
+
+        "monthly_values":
+            household_expense_trend[
+                "values"
+            ],
+
+        # 世帯食費
+        "food_monthly_labels":
+            household_food["labels"],
+
+        "food_out_values":
+            household_food[
+                "out_values"
+            ],
+
+        "food_home_values":
+            household_food[
+                "home_values"
+            ],
+
+        # 世帯収支
+        "profit_labels":
+            household_profit[
+                "labels"
+            ],
+
+        "profit_income_values":
+            household_profit[
+                "income_values"
+            ],
+
+        "profit_expense_values":
+            household_profit[
+                "expense_values"
+            ],
+
+        "profit_values":
+            household_profit[
+                "profit_values"
+            ],
+
+        # 個人カテゴリー
+        "my_chart_labels":
+            my_category["labels"],
+
+        "my_chart_values":
+            my_category["values"],
+
+        "my_detail_chart_labels":
+            my_category[
+                "detail_labels"
+            ],
+
+        "my_detail_chart_values":
+            my_category[
+                "detail_values"
+            ],
+
+        # 個人支出推移
+        "my_monthly_labels":
+            my_expense_trend[
+                "labels"
+            ],
+
+        "my_monthly_values":
+            my_expense_trend[
+                "values"
+            ],
+
+        # 個人食費
+        "my_food_monthly_labels":
+            my_food["labels"],
+
+        "my_food_out_values":
+            my_food[
+                "out_values"
+            ],
+
+        "my_food_home_values":
+            my_food[
+                "home_values"
+            ],
+
+        # 個人収支
+        "my_profit_labels":
+            my_profit[
+                "labels"
+            ],
+
+        "my_profit_income_values":
+            my_profit[
+                "income_values"
+            ],
+
+        "my_profit_expense_values":
+            my_profit[
+                "expense_values"
+            ],
+
+        "my_profit_values":
+            my_profit[
+                "profit_values"
+            ],
+
+        "category_totals":
+            category_totals,
+        },
     )
 
 class ExpenseCategoryUpdateView(LoginRequiredMixin,UpdateView):#UpdateViewを継承しているので、これは既存のデータを編集するためのビューになる。今回ならすでにDBにある明細のcategoryを書き換える。

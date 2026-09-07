@@ -1,236 +1,439 @@
-console.log("expense_chart.js 読み込み成功");
+// ===============================
+// 世帯用
+// ===============================
 
-//カテゴリー別支出、円グラフ
-const chartLabels = JSON.parse(
+// カテゴリー別支出 円グラフ
+const categoryLabels = JSON.parse(
     document.getElementById("chart-labels").textContent
 );
 
-const chartValues = JSON.parse(
+const categoryValues = JSON.parse(
     document.getElementById("chart-values").textContent
 );
 
-const ctx = document.getElementById("categoryChart");
+new Chart(
+    document.getElementById("categoryChart"),
+    {
+        type: "pie",
 
-new Chart(ctx, {
-    type: "pie",
+        data: {
+            labels: categoryLabels,
 
-    data: {
-        labels: chartLabels,
-
-        datasets: [{
-            data: chartValues,
-        }]
-    },
-    
-    options: {
-    responsive: true,
-    maintainAspectRatio: false,
+            datasets: [
+                {
+                    data: categoryValues,
+                }
+            ],
+        },
     }
-});
-
-// 細かいカテゴリの横棒グラフ（世帯）
-const detailLabels = JSON.parse(
-    document.getElementById("detail-chart-labels").textContent
 );
 
-const detailValues = JSON.parse(
-    document.getElementById("detail-chart-values").textContent
+
+// 細かいカテゴリ 横棒グラフ
+const detailCategoryLabels = JSON.parse(
+    document.getElementById(
+        "detail-chart-labels"
+    ).textContent
 );
 
-const detailCtx = document.getElementById("detailCategoryChart");
+const detailCategoryValues = JSON.parse(
+    document.getElementById(
+        "detail-chart-values"
+    ).textContent
+);
 
-new Chart(detailCtx, {
-    type: "bar",
-    data: {
-        labels: detailLabels,
-        datasets: [{
-            label: "カテゴリ別支出",
-            data: detailValues,
-        }]
-    },
-    options: {
-        indexAxis: "y",
-        responsive: true,
-        maintainAspectRatio: false,
+new Chart(
+    document.getElementById(
+        "detailCategoryChart"
+    ),
+    {
+        type: "bar",
 
-        layout: {
-            padding: {
-                left: 30
-            }
+        data: {
+            labels: detailCategoryLabels,
+
+            datasets: [
+                {
+                    label: "支出",
+                    data: detailCategoryValues,
+                }
+            ],
         },
 
-        scales: {
-            y: {
-                ticks: {
-                    font: {
-                        size: 11
-                    }
-                }
-            }
-        }
+        options: {
+            indexAxis: "y",
+        },
     }
-});
-
-
-// ユーザー別
-const ownerLabels = JSON.parse(
-    document.getElementById("owner-labels").textContent
 );
 
-const ownerValues = JSON.parse(
-    document.getElementById("owner-values").textContent
-);
 
-const ownerCtx = document.getElementById("ownerChart");
-
-new Chart(ownerCtx, {
-    type: "pie",
-
-    data: {
-        labels: ownerLabels,
-
-        datasets: [{
-            data: ownerValues,
-        }]
-    },
-
-    options: {
-    responsive: true,
-    maintainAspectRatio: false,
-    }
-});
-
-
-//  世帯支出推移
+// 月別支出
 const monthlyLabels = JSON.parse(
-    document.getElementById("monthly-labels").textContent
+    document.getElementById(
+        "monthly-labels"
+    ).textContent
 );
 
 const monthlyValues = JSON.parse(
-    document.getElementById("monthly-values").textContent
+    document.getElementById(
+        "monthly-values"
+    ).textContent
 );
 
-const monthlyCtx = document.getElementById("monthlyChart");
+new Chart(
+    document.getElementById("monthlyChart"),
+    {
+        type: "line",
 
-new Chart(monthlyCtx, {
-    type: "line",
+        data: {
+            labels: monthlyLabels,
 
-    data: {
-        labels: monthlyLabels,
-
-        datasets: [{
-            label: "世帯支出推移",
-            data: monthlyValues,
-        }]
-    },
-
-    options: {
-    responsive: true,
-    maintainAspectRatio: false,
+            datasets: [
+                {
+                    label: "月別支出",
+                    data: monthlyValues,
+                }
+            ],
+        },
     }
-});
+);
 
 
-//  食費推移
-const foodLabels = JSON.parse(
-    document.getElementById("food-monthly-labels").textContent
+// 食費推移
+const foodMonthlyLabels = JSON.parse(
+    document.getElementById(
+        "food-monthly-labels"
+    ).textContent
 );
 
 const foodOutValues = JSON.parse(
-    document.getElementById("food-out-values").textContent
+    document.getElementById(
+        "food-out-values"
+    ).textContent
 );
 
 const foodHomeValues = JSON.parse(
-    document.getElementById("food-home-values").textContent
+    document.getElementById(
+        "food-home-values"
+    ).textContent
 );
 
-const foodCtx = document.getElementById("foodChart");
+new Chart(
+    document.getElementById("foodChart"),
+    {
+        type: "line",
 
-new Chart(foodCtx, {
-    type: "line",
+        data: {
+            labels: foodMonthlyLabels,
 
-    data: {
-        labels: foodLabels,
+            datasets: [
+                {
+                    label: "外食",
+                    data: foodOutValues,
+                },
 
-        datasets: [
-            {
-                label: "外食",
-                data: foodOutValues,
-                tension: 0.3,
-            },
-            {
-                label: "自炊",
-                data: foodHomeValues,
-                tension: 0.3,
-            }
-        ]
-    },
-
-    options: {
-        responsive: true,
-
-        plugins: {
-            title: {
-                display: true,
-                text: "食費の月別推移"
-            }
+                {
+                    label: "自炊",
+                    data: foodHomeValues,
+                }
+            ],
         },
-
-        scales: {
-            y: {
-                beginAtZero: true
-            }
-        }
     }
-});
+);
 
-// 評価損益
+
+// 利用者別
+const ownerLabels = JSON.parse(
+    document.getElementById(
+        "owner-labels"
+    ).textContent
+);
+
+const ownerValues = JSON.parse(
+    document.getElementById(
+        "owner-values"
+    ).textContent
+);
+
+new Chart(
+    document.getElementById("ownerChart"),
+    {
+        type: "pie",
+
+        data: {
+            labels: ownerLabels,
+
+            datasets: [
+                {
+                    data: ownerValues,
+                }
+            ],
+        },
+    }
+);
+
+
+// 月間収支
 const profitLabels = JSON.parse(
-    document.getElementById("profit-labels").textContent
+    document.getElementById(
+        "profit-labels"
+    ).textContent
 );
 
 const profitIncomeValues = JSON.parse(
-    document.getElementById("profit-income-values").textContent
+    document.getElementById(
+        "profit-income-values"
+    ).textContent
 );
 
 const profitExpenseValues = JSON.parse(
-    document.getElementById("profit-expense-values").textContent
+    document.getElementById(
+        "profit-expense-values"
+    ).textContent
 );
 
 const profitValues = JSON.parse(
-    document.getElementById("profit-values").textContent
+    document.getElementById(
+        "profit-values"
+    ).textContent
 );
 
-const profitCtx = document.getElementById("profitChart");
+new Chart(
+    document.getElementById("profitChart"),
+    {
+        type: "bar",
 
-new Chart(profitCtx, {
-    type: "bar",
+        data: {
+            labels: profitLabels,
 
-    data: {
-        labels: profitLabels,
-        datasets: [
-            {
-                label: "収入",
-                data: profitIncomeValues,
-            },
-            {
-                label: "支出",
-                data: profitExpenseValues,
-            },
-            {
-                label: "損益",
-                data: profitValues,
-                type: "line",
-            }
-        ]
-    },
+            datasets: [
+                {
+                    label: "収入",
+                    data: profitIncomeValues,
+                },
 
-    options: {
-        responsive: true,
-        scales: {
-            y: {
-                beginAtZero: true
-            }
-        }
+                {
+                    label: "支出",
+                    data: profitExpenseValues,
+                },
+
+                {
+                    label: "収支",
+                    data: profitValues,
+                    type: "line",
+                }
+            ],
+        },
     }
-});
+);
+
+
+// ===============================
+// 個人用
+// ===============================
+
+// 個人 カテゴリー別支出
+const myCategoryLabels = JSON.parse(
+    document.getElementById(
+        "my-chart-labels"
+    ).textContent
+);
+
+const myCategoryValues = JSON.parse(
+    document.getElementById(
+        "my-chart-values"
+    ).textContent
+);
+
+new Chart(
+    document.getElementById(
+        "myCategoryChart"
+    ),
+    {
+        type: "pie",
+
+        data: {
+            labels: myCategoryLabels,
+
+            datasets: [
+                {
+                    data: myCategoryValues,
+                }
+            ],
+        },
+    }
+);
+
+
+// 個人 細かいカテゴリー
+const myDetailCategoryLabels = JSON.parse(
+    document.getElementById(
+        "my-detail-chart-labels"
+    ).textContent
+);
+
+const myDetailCategoryValues = JSON.parse(
+    document.getElementById(
+        "my-detail-chart-values"
+    ).textContent
+);
+
+new Chart(
+    document.getElementById(
+        "myDetailCategoryChart"
+    ),
+    {
+        type: "bar",
+
+        data: {
+            labels: myDetailCategoryLabels,
+
+            datasets: [
+                {
+                    label: "支出",
+                    data: myDetailCategoryValues,
+                }
+            ],
+        },
+
+        options: {
+            indexAxis: "y",
+        },
+    }
+);
+
+
+// 個人 月別支出
+const myMonthlyLabels = JSON.parse(
+    document.getElementById(
+        "my-monthly-labels"
+    ).textContent
+);
+
+const myMonthlyValues = JSON.parse(
+    document.getElementById(
+        "my-monthly-values"
+    ).textContent
+);
+
+new Chart(
+    document.getElementById(
+        "myMonthlyChart"
+    ),
+    {
+        type: "line",
+
+        data: {
+            labels: myMonthlyLabels,
+
+            datasets: [
+                {
+                    label: "月別支出",
+                    data: myMonthlyValues,
+                }
+            ],
+        },
+    }
+);
+
+
+// 個人 食費推移
+const myFoodMonthlyLabels = JSON.parse(
+    document.getElementById(
+        "my-food-monthly-labels"
+    ).textContent
+);
+
+const myFoodOutValues = JSON.parse(
+    document.getElementById(
+        "my-food-out-values"
+    ).textContent
+);
+
+const myFoodHomeValues = JSON.parse(
+    document.getElementById(
+        "my-food-home-values"
+    ).textContent
+);
+
+new Chart(
+    document.getElementById(
+        "myFoodChart"
+    ),
+    {
+        type: "line",
+
+        data: {
+            labels: myFoodMonthlyLabels,
+
+            datasets: [
+                {
+                    label: "外食",
+                    data: myFoodOutValues,
+                },
+
+                {
+                    label: "自炊",
+                    data: myFoodHomeValues,
+                }
+            ],
+        },
+    }
+);
+
+
+// 個人 月間収支
+const myProfitLabels = JSON.parse(
+    document.getElementById(
+        "my-profit-labels"
+    ).textContent
+);
+
+const myProfitIncomeValues = JSON.parse(
+    document.getElementById(
+        "my-profit-income-values"
+    ).textContent
+);
+
+const myProfitExpenseValues = JSON.parse(
+    document.getElementById(
+        "my-profit-expense-values"
+    ).textContent
+);
+
+const myProfitValues = JSON.parse(
+    document.getElementById(
+        "my-profit-values"
+    ).textContent
+);
+
+new Chart(
+    document.getElementById(
+        "myProfitChart"
+    ),
+    {
+        type: "bar",
+
+        data: {
+            labels: myProfitLabels,
+
+            datasets: [
+                {
+                    label: "収入",
+                    data: myProfitIncomeValues,
+                },
+
+                {
+                    label: "支出",
+                    data: myProfitExpenseValues,
+                },
+
+                {
+                    label: "収支",
+                    data: myProfitValues,
+                    type: "line",
+                }
+            ],
+        },
+    }
+);

@@ -2,32 +2,25 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>タイトル</title>
+    <title>MoneyMind</title>
     {% load static %}
     <link rel="stylesheet" href="{% static 'expense/css/base.css' %}">
 
 </head>
 <body>
 
-<h1>ふたりの家計簿</h1>
+<h1>MoneyMind</h1>
 
 <form method="post" action="{% url 'accounts:logout' %}">
     {% csrf_token %}
     <button type="submit">ログアウト</button>
 </form>
 
-<p>銀行のファイルをアップロードしてから、クレジットカードのファイルをアップロードしてください</p>
-<p><a href="{% url 'expense:ginkou_upload' %}">⓵銀行アップロード</a></p>
-<p><a href="https://sfes.rakuten-bank.co.jp/MS/main/RbS?CID=M_START&CMD=LOGIN&l-id=smp_top_1214_45_CO800">楽天銀行ログイン</a></p>
-<p><a href="https://directg.s.bk.mufg.jp/APL/LGP_P_01/PU/LG_0001/LG_0001_PC01?link_id=r_header_login_SP&source_caller=ui&c=r_header_login_SP&af_dp=jp.mufg.bk.applisp.app.af%253A%252F%252F&pid=hp&af_xp=custom&shortlink=SPheader">三菱UFJ銀行ログイン</a></p>
-<p><a href="https://www.parasol.anser.ne.jp/ib/index.do?PT=BS&CCT0080=2963">ろうきん銀行ログイン</a></p>
-<p><a href="{% url 'expense:csv_upload' %}">⓶クレジットカードアップロード</a></p>
-<p><a href="https://login.account.rakuten.com/sso/authorize?client_id=rakuten_card_enavi_web&redirect_uri=https://www.rakuten-card.co.jp/e-navi/auth/login.xhtml&scope=openid%20profile&response_type=code&prompt=login#/sign_in">楽天カードログイン</a></p>
-
-
-<p><a href="{% url 'expense:nisa_upload' %}">Nisaアップロード</a></p>
-<p><a href="https://www.rakuten-sec.co.jp/ITS/V_ACT_Login.html">楽天証券ログイン</a></p>
-
+<h2>月別明細</h2>
+<p>
+    確認したい月を選択すると、その月の銀行・クレジットカード明細や<br>
+    支出グラフを確認できます。各データの入力が完了すると、対象月の明細ボタンが表示されます。
+</p>
 {% for month in month_list %}
     <a href="{% url 'expense:expense_month' month %}">
         {{ month }}
@@ -37,15 +30,46 @@
     {% endif %}
 {% endfor %}
 
-<h2>現在のNISA</h2>
+<h2>明細データをアップロード</h2>
+<p>
+    まず各銀行のCSV明細をアップロードし、<br>
+    その後にクレジットカードのCSV明細をアップロードしてください。
+</p>
+<h3>① 銀行明細</h3>
+<p><a href="{% url 'expense:ginkou_upload' %}">銀行明細をアップロード</a></p>
+<p>CSVファイルは各銀行のサイトから取得できます。</p>
+<p><a href="https://sfes.rakuten-bank.co.jp/MS/main/RbS?CID=M_START&CMD=LOGIN&l-id=smp_top_1214_45_CO800" target="_blank">楽天銀行ログイン</a></p>
+<p><a href="https://directg.s.bk.mufg.jp/APL/LGP_P_01/PU/LG_0001/LG_0001_PC01?link_id=r_header_login_SP&source_caller=ui&c=r_header_login_SP&af_dp=jp.mufg.bk.applisp.app.af%253A%252F%252F&pid=hp&af_xp=custom&shortlink=SPheader" target="_blank">三菱UFJ銀行ログイン</a></p>
+<p><a href="https://www.parasol.anser.ne.jp/ib/index.do?PT=BS&CCT0080=2963" target="_blank">ろうきん銀行ログイン</a></p>
+
+<h3>② クレジットカード明細</h3>
+<p><a href="{% url 'expense:csv_upload' %}">クレジットカード明細をアップロード</a></p>
+<p>CSVファイルはカードのサイトから取得できます。</p>
+<p><a href="https://login.account.rakuten.com/sso/authorize?client_id=rakuten_card_enavi_web&redirect_uri=https://www.rakuten-card.co.jp/e-navi/auth/login.xhtml&scope=openid%20profile&response_type=code&prompt=login#/sign_in" target="_blank">楽天カードログイン</a></p>
+
+<h2>NISA</h2>
+<p>
+    楽天証券で現在のNISA評価額を確認し、
+    その金額を入力してください。
+</p>
+<p>
+    入力した金額は、総資産に反映されます。
+</p>
+<p><a href="{% url 'expense:nisa_upload' %}">NISA評価額を入力</a></p>
+<p><a href="https://www.rakuten-sec.co.jp/ITS/V_ACT_Login.html">楽天証券ログイン</a></p>
+
+
+<h2>現在のNISA評価額</h2>
 {% for nisa in nisa_list %}
     <p>
         {{ nisa.owner }}：
         {{ nisa.value }}円
     </p>
+{% empty %}
+    <p>NISAデータはまだ登録されていません。</p>
 {% endfor %}
 
-<h2>世帯の全財産</h2>
+<h2>世帯の総資産</h2>
 <p>
     {{ household_total_assets }} 円
 </p>
@@ -63,9 +87,6 @@
     </p>
 
 {% endfor %}
-
-
-
 
 </body>
 </html>
