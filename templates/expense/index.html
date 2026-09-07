@@ -16,9 +16,17 @@
     <button type="submit">ログアウト</button>
 </form>
 
-<p><a href="{% url 'expense:csv_upload' %}">クレジットカードアップロード</a></p>
-<p><a href="{% url 'expense:ginkou_upload' %}">銀行アップロード</a></p>
+<p>銀行のファイルをアップロードしてから、クレジットカードのファイルをアップロードしてください</p>
+<p><a href="{% url 'expense:ginkou_upload' %}">⓵銀行アップロード</a></p>
+<p><a href="https://sfes.rakuten-bank.co.jp/MS/main/RbS?CID=M_START&CMD=LOGIN&l-id=smp_top_1214_45_CO800">楽天銀行ログイン</a></p>
+<p><a href="https://directg.s.bk.mufg.jp/APL/LGP_P_01/PU/LG_0001/LG_0001_PC01?link_id=r_header_login_SP&source_caller=ui&c=r_header_login_SP&af_dp=jp.mufg.bk.applisp.app.af%253A%252F%252F&pid=hp&af_xp=custom&shortlink=SPheader">三菱UFJ銀行ログイン</a></p>
+<p><a href="https://www.parasol.anser.ne.jp/ib/index.do?PT=BS&CCT0080=2963">ろうきん銀行ログイン</a></p>
+<p><a href="{% url 'expense:csv_upload' %}">⓶クレジットカードアップロード</a></p>
+<p><a href="https://login.account.rakuten.com/sso/authorize?client_id=rakuten_card_enavi_web&redirect_uri=https://www.rakuten-card.co.jp/e-navi/auth/login.xhtml&scope=openid%20profile&response_type=code&prompt=login#/sign_in">楽天カードログイン</a></p>
+
+
 <p><a href="{% url 'expense:nisa_upload' %}">Nisaアップロード</a></p>
+<p><a href="https://www.rakuten-sec.co.jp/ITS/V_ACT_Login.html">楽天証券ログイン</a></p>
 
 {% for month in month_list %}
     <a href="{% url 'expense:expense_month' month %}">

@@ -3,4 +3,6 @@ __pycache__/
 db.sqlite3
 *.csv
 *.xlsx
+*.txt
 .env
+.venv/

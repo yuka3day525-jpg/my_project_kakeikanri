@@ -694,7 +694,7 @@ def expense_month(request,month):
     income_data = Bank.objects.filter(household=household,amount__gt=0,category__in=["給料", "サービス(還元など)"],).values(#amount__gt=0 はDjango ORMで、「amount が 0 より大きいデータだけ」
                 "billing_month","amount",)
     expense2_data = (Bank.objects.filter(household=household,amount__lt=0,).exclude(
-                category__in=["給料","サービス(還元など)","NISA",]).values(
+                category__in=["給料","サービス(還元など)","NISA","送金","入金"]).values(
                 "billing_month","amount",))
 
     income_df = pd.DataFrame(income_data,columns=["billing_month", "amount"])

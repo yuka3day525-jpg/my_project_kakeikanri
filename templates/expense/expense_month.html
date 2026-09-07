@@ -72,22 +72,6 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="{% static 'expense/js/expense_chart.js' %}"></script>
 
-
-<h2>カテゴリー別合計</h2>
-<table border="1">
-    <tr>
-        <th>カテゴリー</th>
-        <th>合計金額</th>
-    </tr>
-
-    {% for item in category_totals %}
-    <tr>
-        <td>{{ item.category }}</td>
-        <td>{{ item.total }}円</td>
-    </tr>
-    {% endfor %}
-</table>
-
 <h1>楽天カード利用明細 世帯一覧</h1>
 <form method="post" action="{% url 'expense:bulk_save_rules' %}">
 <input type="hidden" name="month" value="{{ month }}">
