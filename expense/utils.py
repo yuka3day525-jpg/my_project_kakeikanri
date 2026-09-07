@@ -48,8 +48,6 @@ def classify_category(store_name,household):
         if "APPLE.COM" in normalized_name:
             return "サブスク","rule"
 
-        if "保険" in normalized_name:
-            return "保険（家や生命など）","rule"
 
         if "コミック" in normalized_name:
             return "娯楽・趣味","rule"

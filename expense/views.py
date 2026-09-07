@@ -693,13 +693,17 @@ def expense_month(request,month):
     #評価損益
     income_data = Bank.objects.filter(household=household,amount__gt=0,category__in=["給料", "サービス(還元など)"],).values(#amount__gt=0 はDjango ORMで、「amount が 0 より大きいデータだけ」
                 "billing_month","amount",)
-    expense2_data = (Bank.objects.filter(household=household,amount__lt=0,).exclude(
-                category__in=["給料","サービス(還元など)","NISA","送金","入金"]).values(
+    expense2_bankdata = (Bank.objects.filter(household=household,amount__lt=0,).exclude(
+                category__in=["給料","サービス(還元など)","NISA","送金","入金","カード引き落とし"]).values(
                 "billing_month","amount",))
+    expense2_carddata = Expense.objects.filter(household=household).exclude(category__in=["NISA"]).values("billing_month","amount",)
 
     income_df = pd.DataFrame(income_data,columns=["billing_month", "amount"])
-    expense2_df = pd.DataFrame(expense2_data,columns=["billing_month", "amount"])
-    expense2_df["amount"] = expense2_df["amount"].abs()
+    expense2_bank_df = pd.DataFrame(expense2_bankdata,columns=["billing_month", "amount"])
+    expense2_bank_df["amount"] = expense2_bank_df["amount"].abs()
+    expense2_card_df = pd.DataFrame(expense2_carddata,columns=["billing_month", "amount"])
+    expense2_card_df["amount"] = expense2_card_df["amount"].abs()
+    expense2_df = pd.concat([expense2_bank_df, expense2_card_df],ignore_index=True,)
 
     income_monthly = (income_df.groupby("billing_month")["amount"].sum())
     expense_monthly = (expense2_df.groupby("billing_month")["amount"].sum())
@@ -881,7 +885,7 @@ def bank_bulk_save_rules(request):
     if request.method == "POST":
         household = request.user.households.first()
         selected_pks = request.POST.getlist(
-            "selected_expenses"
+            "selected_banks"
         )
         month = request.POST.get("month")
         expenses = Bank.objects.filter(
