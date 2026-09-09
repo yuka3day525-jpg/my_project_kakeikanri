@@ -1,21 +1,265 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
     <meta charset="UTF-8">
-    <title>CSVアップロード</title>
+
+    <title>
+        NISA評価額更新 | MoneyMind
+    </title>
+
+    {% load static %}
+
+    <link
+        rel="stylesheet"
+        href="{% static 'expense/css/base.css' %}"
+    >
 </head>
+
+
 <body>
 
-<h1>NISAアップロード</h1>
 
-<form method="post" enctype="multipart/form-data">
-    <!-- ファイルを送信するときは必須。enctypeは呪文のようなもの -->
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">
-        更新額を取り込む
-    </button>
-</form>
+<header class="app-header">
+
+    <div class="header-left">
+
+        <button
+            type="button"
+            class="menu-button"
+            id="menuButton"
+            aria-label="メニューを開く"
+        >
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+
+
+        <div class="brand">
+
+            <h1 class="brand-title">
+                MoneyMind
+            </h1>
+
+            <span class="brand-subtitle">
+                Smart Household Finance
+            </span>
+
+        </div>
+
+    </div>
+
+</header>
+
+
+
+<!-- ハンバーガーメニュー -->
+
+<aside
+    class="side-menu"
+    id="sideMenu"
+>
+
+    <div class="side-menu-header">
+
+        <span class="side-menu-title">
+            過去の年度
+        </span>
+
+        <button
+            type="button"
+            class="side-menu-close"
+            id="menuClose"
+        >
+            ×
+        </button>
+
+    </div>
+
+
+    <div class="year-menu">
+
+        <div class="year-item">
+
+            <span class="year-label">
+                2025
+            </span>
+
+            <div class="year-months">
+                <a href="#">2025-12</a>
+                <a href="#">2025-11</a>
+                <a href="#">2025-10</a>
+            </div>
+
+        </div>
+
+
+        <div class="year-item">
+
+            <span class="year-label">
+                2024
+            </span>
+
+            <div class="year-months">
+                <a href="#">2024-12</a>
+                <a href="#">2024-11</a>
+            </div>
+
+        </div>
+
+    </div>
+
+</aside>
+
+
+<div
+    class="menu-overlay"
+    id="menuOverlay"
+></div>
+
+
+
+<main class="form-page">
+
+    <section class="form-section">
+
+
+        <div class="section-heading">
+
+            <div>
+
+                <span class="section-label">
+                    ASSETS
+                </span>
+
+                <h2>
+                    NISA評価額を更新
+                </h2>
+
+            </div>
+
+        </div>
+
+
+
+        <div class="form-card">
+
+
+            <div class="form-card-header">
+
+                <div class="form-icon">
+                    FI
+                </div>
+
+
+                <div>
+
+                    <h3>
+                        現在のNISA評価額を登録
+                    </h3>
+
+                    <p>
+                        証券口座で現在の評価額を確認し、
+                        金額を入力してください。
+                    </p>
+
+                </div>
+
+            </div>
+
+
+
+            <div class="upload-guide">
+
+                <span class="guide-number">
+                    01
+                </span>
+
+                <span>
+                    証券口座で現在のNISA評価額を確認
+                </span>
+
+            </div>
+
+
+            <div class="upload-guide">
+
+                <span class="guide-number">
+                    02
+                </span>
+
+                <span>
+                    現在の評価額を入力
+                </span>
+
+            </div>
+
+
+            <div class="upload-guide">
+
+                <span class="guide-number">
+                    03
+                </span>
+
+                <span>
+                    「評価額を更新」を押して保存
+                </span>
+
+            </div>
+
+
+
+            <form
+                method="post"
+                class="upload-form"
+            >
+
+                {% csrf_token %}
+
+
+                <div class="form-fields">
+
+                    {{ form.as_p }}
+
+                </div>
+
+
+                <div class="form-actions">
+
+                    <a
+                        href="{% url 'expense:expense_index' %}"
+                        class="secondary-button"
+                    >
+                        戻る
+                    </a>
+
+
+                    <button
+                        type="submit"
+                        class="primary-submit-button"
+                    >
+                        評価額を更新
+                    </button>
+
+                </div>
+
+            </form>
+
+
+        </div>
+
+    </section>
+
+</main>
+
+
+
+<script
+    src="{% static 'expense/js/base.js' %}"
+></script>
+
 
 </body>
+
 </html>

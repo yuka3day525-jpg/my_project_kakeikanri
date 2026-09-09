@@ -1,8 +1,118 @@
-<!-- ログインはデフォルトでレジストレーションフォルダの中のlogin.htmlを探す -->
-<h2>ログイン</h2>
-<form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">ログイン</button>
-</form>
+<!DOCTYPE html>
+<html lang="ja">
 
+<head>
+    <meta charset="UTF-8">
+    <title>ログイン | MoneyMind</title>
+
+    {% load static %}
+
+    <link
+        rel="stylesheet"
+        href="{% static 'expense/css/base.css' %}"
+    >
+</head>
+
+
+<body>
+
+<header class="app-header">
+
+    <div class="header-left">
+
+        <div class="brand">
+
+            <h1 class="brand-title">
+                MoneyMind
+            </h1>
+
+            <span class="brand-subtitle">
+                Smart Household Finance
+            </span>
+
+        </div>
+
+    </div>
+
+</header>
+
+
+<main class="form-page">
+
+    <section class="form-section">
+
+        <div class="section-heading">
+
+            <div>
+
+                <span class="section-label">
+                    LOGIN
+                </span>
+
+                <h2>
+                    ログイン
+                </h2>
+
+            </div>
+
+        </div>
+
+
+        <div class="form-card">
+
+            <div class="form-card-header">
+
+                <div class="form-icon">
+                    ID
+                </div>
+
+                <div>
+
+                    <h3>
+                        MoneyMindへログイン
+                    </h3>
+
+                    <p>
+                        ユーザー名とパスワードを入力してください。デモの時はここ変える
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <form
+                method="post"
+                class="upload-form"
+            >
+
+                {% csrf_token %}
+
+                <div class="form-fields">
+                    {{ form.as_p }}
+                </div>
+
+                <div class="form-actions">
+
+                    <button
+                        type="submit"
+                        class="primary-submit-button"
+                    >
+                        ログイン
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </section>
+
+</main>
+
+</body>
+
+</html>
+
+<!-- 明日やること、フォーム時のエラー処理、いよいよもんす -->

@@ -1,23 +1,293 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
     <meta charset="UTF-8">
-    <title>CSVアップロード</title>
+
+    <title>
+        楽天カードCSVアップロード | MoneyMind
+    </title>
+
+    {% load static %}
+
+    <link
+        rel="stylesheet"
+        href="{% static 'expense/css/base.css' %}"
+    >
 </head>
+
+
 <body>
 
-<h1>楽天カードCSVアップロード</h1>
 
-<form method="post" enctype="multipart/form-data">
-    <!-- ファイルを送信するときは必須。enctypeは呪文のようなもの -->
-    {% csrf_token %}
+<header class="app-header">
 
-    {{ form.as_p }}
+    <div class="header-left">
 
-    <button type="submit">
-        CSVを取り込む
-    </button>
-</form>
+        <button
+            type="button"
+            class="menu-button"
+            id="menuButton"
+            aria-label="メニューを開く"
+        >
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+
+
+        <div class="brand">
+
+            <h1 class="brand-title">
+                MoneyMind
+            </h1>
+
+            <span class="brand-subtitle">
+                Smart Household Finance
+            </span>
+
+        </div>
+
+    </div>
+
+</header>
+
+
+
+<!-- =========================
+     ハンバーガーメニュー
+========================= -->
+
+<aside
+    class="side-menu"
+    id="sideMenu"
+>
+
+    <div class="side-menu-header">
+
+        <span class="side-menu-title">
+            過去の年度
+        </span>
+
+        <button
+            type="button"
+            class="side-menu-close"
+            id="menuClose"
+        >
+            ×
+        </button>
+
+    </div>
+
+
+    <div class="year-menu">
+
+        <div class="year-item">
+
+            <span class="year-label">
+                2025
+            </span>
+
+            <div class="year-months">
+
+                <a href="#">
+                    2025-12
+                </a>
+
+                <a href="#">
+                    2025-11
+                </a>
+
+                <a href="#">
+                    2025-10
+                </a>
+
+            </div>
+
+        </div>
+
+
+        <div class="year-item">
+
+            <span class="year-label">
+                2024
+            </span>
+
+            <div class="year-months">
+
+                <a href="#">
+                    2024-12
+                </a>
+
+                <a href="#">
+                    2024-11
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</aside>
+
+
+<div
+    class="menu-overlay"
+    id="menuOverlay"
+></div>
+
+
+
+<!-- =========================
+     メイン
+========================= -->
+
+<main class="form-page">
+
+    <section class="form-section">
+
+
+        <div class="section-heading">
+
+            <div>
+
+                <span class="section-label">
+                    IMPORT
+                </span>
+
+                <h2>
+                    楽天カードCSVアップロード
+                </h2>
+
+            </div>
+
+        </div>
+
+
+
+        <div class="form-card">
+
+
+            <div class="form-card-header">
+
+                <div class="form-icon">
+                    CR
+                </div>
+
+
+                <div>
+
+                    <h3>
+                        楽天カード明細を取り込む
+                    </h3>
+
+                    <p>
+                        楽天カードからダウンロードした
+                        CSVファイルを選択してください。
+                    </p>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- 手順 -->
+
+            <div class="upload-guide">
+
+                <span class="guide-number">
+                    01
+                </span>
+
+                <span>
+                    楽天カードからCSV明細をダウンロード
+                </span>
+
+            </div>
+
+
+            <div class="upload-guide">
+
+                <span class="guide-number">
+                    02
+                </span>
+
+                <span>
+                    CSVファイルを選択
+                </span>
+
+            </div>
+
+
+            <div class="upload-guide">
+
+                <span class="guide-number">
+                    03
+                </span>
+
+                <span>
+                    「CSVを取り込む」を押して登録
+                </span>
+
+            </div>
+
+
+
+            <!-- フォーム -->
+
+            <form
+                method="post"
+                enctype="multipart/form-data"
+                class="upload-form"
+            >
+
+                {% csrf_token %}
+
+
+                <div class="form-fields">
+
+                    {{ form.as_p }}
+
+                </div>
+
+
+                <div class="form-actions">
+
+                    <a
+                        href="{% url 'expense:expense_index' %}"
+                        class="secondary-button"
+                    >
+                        戻る
+                    </a>
+
+
+                    <button
+                        type="submit"
+                        class="primary-submit-button"
+                    >
+                        CSVを取り込む
+                    </button>
+
+                </div>
+
+            </form>
+
+
+        </div>
+
+    </section>
+
+</main>
+
+
+
+<script
+    src="{% static 'expense/js/base.js' %}"
+></script>
+
 
 </body>
+
 </html>

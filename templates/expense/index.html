@@ -3,90 +3,565 @@
 <head>
     <meta charset="UTF-8">
     <title>MoneyMind</title>
-    {% load static %}
-    <link rel="stylesheet" href="{% static 'expense/css/base.css' %}">
 
+    {% load humanize %}
+    {% load static %}
+
+    <link
+        rel="stylesheet"
+        href="{% static 'expense/css/base.css' %}"
+    >
 </head>
+
 <body>
 
-<h1>MoneyMind</h1>
+    <!-- =========================
+         ヘッダー
+    ========================== -->
+    <header class="app-header">
 
-<form method="post" action="{% url 'accounts:logout' %}">
-    {% csrf_token %}
-    <button type="submit">ログアウト</button>
-</form>
+        <div class="header-left">
 
-<h2>月別明細</h2>
-<p>
-    確認したい月を選択すると、その月の銀行・クレジットカード明細や<br>
-    支出グラフを確認できます。各データの入力が完了すると、対象月の明細ボタンが表示されます。
-</p>
-{% for month in month_list %}
-    <a href="{% url 'expense:expense_month' month %}">
-        {{ month }}
-    </a>
-    {% if month == new_month %}
-        <span class="new-label">← NEW</span>
-    {% endif %}
-{% endfor %}
+            <button
+                type="button"
+                class="menu-button"
+                id="menuButton"
+                aria-label="メニューを開く"
+            >
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
 
-<h2>明細データをアップロード</h2>
-<p>
-    まず各銀行のCSV明細をアップロードし、<br>
-    その後にクレジットカードのCSV明細をアップロードしてください。
-</p>
-<h3>① 銀行明細</h3>
-<p><a href="{% url 'expense:ginkou_upload' %}">銀行明細をアップロード</a></p>
-<p>CSVファイルは各銀行のサイトから取得できます。</p>
-<p><a href="https://sfes.rakuten-bank.co.jp/MS/main/RbS?CID=M_START&CMD=LOGIN&l-id=smp_top_1214_45_CO800" target="_blank">楽天銀行ログイン</a></p>
-<p><a href="https://directg.s.bk.mufg.jp/APL/LGP_P_01/PU/LG_0001/LG_0001_PC01?link_id=r_header_login_SP&source_caller=ui&c=r_header_login_SP&af_dp=jp.mufg.bk.applisp.app.af%253A%252F%252F&pid=hp&af_xp=custom&shortlink=SPheader" target="_blank">三菱UFJ銀行ログイン</a></p>
-<p><a href="https://www.parasol.anser.ne.jp/ib/index.do?PT=BS&CCT0080=2963" target="_blank">ろうきん銀行ログイン</a></p>
+            <div class="brand">
+                <h1 class="brand-title">MoneyMind</h1>
+                <span class="brand-subtitle">
+                    Smart Household Finance
+                </span>
+            </div>
 
-<h3>② クレジットカード明細</h3>
-<p><a href="{% url 'expense:csv_upload' %}">クレジットカード明細をアップロード</a></p>
-<p>CSVファイルはカードのサイトから取得できます。</p>
-<p><a href="https://login.account.rakuten.com/sso/authorize?client_id=rakuten_card_enavi_web&redirect_uri=https://www.rakuten-card.co.jp/e-navi/auth/login.xhtml&scope=openid%20profile&response_type=code&prompt=login#/sign_in" target="_blank">楽天カードログイン</a></p>
+        </div>
 
-<h2>NISA</h2>
-<p>
-    楽天証券で現在のNISA評価額を確認し、
-    その金額を入力してください。
-</p>
-<p>
-    入力した金額は、総資産に反映されます。
-</p>
-<p><a href="{% url 'expense:nisa_upload' %}">NISA評価額を入力</a></p>
-<p><a href="https://www.rakuten-sec.co.jp/ITS/V_ACT_Login.html">楽天証券ログイン</a></p>
+        <form
+            method="post"
+            action="{% url 'accounts:logout' %}"
+            class="logout-form"
+        >
+            {% csrf_token %}
+
+            <button
+                type="submit"
+                class="logout-button"
+            >
+                ログアウト
+            </button>
+        </form>
+
+    </header>
 
 
-<h2>現在のNISA評価額</h2>
-{% for nisa in nisa_list %}
-    <p>
-        {{ nisa.owner }}：
-        {{ nisa.value }}円
-    </p>
-{% empty %}
-    <p>NISAデータはまだ登録されていません。</p>
-{% endfor %}
+    <!-- =========================
+         ハンバーガーメニュー
+    ========================== -->
+    <aside
+        class="side-menu"
+        id="sideMenu"
+    >
 
-<h2>世帯の総資産</h2>
-<p>
-    {{ household_total_assets }} 円
-</p>
+        <div class="side-menu-header">
+            <span class="side-menu-title">
+                過去の年度
+            </span>
 
-<h2>ユーザー別資産</h2>
-{% for username, data in asset_by_user.items %}
-    <h3>{{ username }}</h3>
-    <p>
-        銀行残高：
-        {{ data.bank }} 円
-    </p>
-    <p>
-        合計：
-        {{ data.total }} 円
-    </p>
+            <button
+                type="button"
+                class="side-menu-close"
+                id="menuClose"
+            >
+                ×
+            </button>
+        </div>
 
-{% endfor %}
+        <div class="year-menu">
+
+            <!-- ここは後でDjango側のyear_listに変更可能 -->
+
+            <div class="year-item">
+                <span class="year-label">
+                    2025
+                </span>
+
+                <div class="year-months">
+                    <a href="#">2025-12</a>
+                    <a href="#">2025-11</a>
+                    <a href="#">2025-10</a>
+                </div>
+            </div>
+
+            <div class="year-item">
+                <span class="year-label">
+                    2024
+                </span>
+
+                <div class="year-months">
+                    <a href="#">2024-12</a>
+                    <a href="#">2024-11</a>
+                </div>
+            </div>
+
+        </div>
+
+    </aside>
+
+
+    <!-- メニュー開いてる時の背景 -->
+    <div
+        class="menu-overlay"
+        id="menuOverlay"
+    ></div>
+
+
+    <!-- =========================
+         メイン
+    ========================== -->
+    <main class="main-container">
+
+
+        <!-- =========================
+             月別明細
+        ========================== -->
+        <section class="dashboard-section">
+
+            <div class="section-heading">
+
+                <div>
+                    <span class="section-label">
+                        MONTHLY
+                    </span>
+
+                    <h2>
+                        月別明細
+                    </h2>
+                </div>
+
+            </div>
+
+            <div class="section-card">
+
+                <p class="section-description">
+                    確認したい月を選択すると、
+                    その月の銀行・クレジットカード明細や
+                    支出グラフを確認できます。
+                </p>
+
+                <p class="section-note">
+                    各データの入力が完了すると、
+                    対象月の明細ボタンが表示されます。
+                </p>
+
+                <div class="month-list">
+
+                    {% for month in month_list %}
+
+                        <div class="month-item">
+
+                            <a
+                                href="{% url 'expense:expense_month' month %}"
+                                class="month-button"
+                            >
+                                <span class="month-icon">
+                                    ◷
+                                </span>
+
+                                <span>
+                                    {{ month }}
+                                </span>
+                            </a>
+
+                            {% if month == new_month %}
+                                <span class="new-label">
+                                    NEW
+                                </span>
+                            {% endif %}
+
+                        </div>
+
+                    {% empty %}
+
+                        <div class="empty-message">
+                            まだ明細データがありません。
+                        </div>
+
+                    {% endfor %}
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =========================
+             データ入力
+        ========================== -->
+        <section class="dashboard-section">
+
+            <div class="section-heading">
+
+                <div>
+                    <span class="section-label">
+                        IMPORT
+                    </span>
+
+                    <h2>
+                        明細データをアップロード
+                    </h2>
+                </div>
+
+            </div>
+
+            <p class="section-description">
+                銀行明細を登録したあと、
+                クレジットカード明細をアップロードしてください。
+            </p>
+
+
+            <div class="upload-grid">
+
+
+                <!-- 銀行 -->
+                <article class="upload-card">
+
+                    <div class="upload-number">
+                        01
+                    </div>
+
+                    <div class="upload-content">
+
+                        <h3>
+                            銀行明細
+                        </h3>
+
+                        <p>
+                            CSVファイルをアップロードして、
+                            銀行口座の入出金情報を登録します。
+                        </p>
+
+                        <a
+                            href="{% url 'expense:ginkou_upload' %}"
+                            class="primary-button"
+                        >
+                            銀行明細をアップロード
+                        </a>
+
+                        <div class="external-links">
+
+                            <span class="external-title">
+                                CSV取得先
+                            </span>
+
+                            <a
+                                href="https://sfes.rakuten-bank.co.jp/MS/main/RbS?CID=M_START&CMD=LOGIN&l-id=smp_top_1214_45_CO800"
+                                target="_blank"
+                            >
+                                楽天銀行
+                                <span>↗</span>
+                            </a>
+
+                            <a
+                                href="https://directg.s.bk.mufg.jp/APL/LGP_P_01/PU/LG_0001/LG_0001_PC01?link_id=r_header_login_SP&source_caller=ui&c=r_header_login_SP&af_dp=jp.mufg.bk.applisp.app.af%253A%252F%252F&pid=hp&af_xp=custom&shortlink=SPheader"
+                                target="_blank"
+                            >
+                                三菱UFJ銀行
+                                <span>↗</span>
+                            </a>
+
+                            <a
+                                href="https://www.parasol.anser.ne.jp/ib/index.do?PT=BS&CCT0080=2963"
+                                target="_blank"
+                            >
+                                ろうきん
+                                <span>↗</span>
+                            </a>
+
+                        </div>
+
+                    </div>
+
+                </article>
+
+
+                <!-- カード -->
+                <article class="upload-card">
+
+                    <div class="upload-number">
+                        02
+                    </div>
+
+                    <div class="upload-content">
+
+                        <h3>
+                            クレジットカード明細
+                        </h3>
+
+                        <p>
+                            カード利用明細を登録し、
+                            支出データとして反映します。
+                        </p>
+
+                        <a
+                            href="{% url 'expense:csv_upload' %}"
+                            class="primary-button"
+                        >
+                            カード明細をアップロード
+                        </a>
+
+                        <div class="external-links">
+
+                            <span class="external-title">
+                                CSV取得先
+                            </span>
+
+                            <a
+                                href="https://login.account.rakuten.com/sso/authorize?client_id=rakuten_card_enavi_web&redirect_uri=https://www.rakuten-card.co.jp/e-navi/auth/login.xhtml&scope=openid%20profile&response_type=code&prompt=login#/sign_in"
+                                target="_blank"
+                            >
+                                楽天カード
+                                <span>↗</span>
+                            </a>
+
+                        </div>
+
+                    </div>
+
+                </article>
+
+
+                <!-- NISA -->
+                <article class="upload-card">
+
+                    <div class="upload-number">
+                        03
+                    </div>
+
+                    <div class="upload-content">
+
+                        <h3>
+                            NISA
+                        </h3>
+
+                        <p>
+                            現在のNISA評価額を入力すると、
+                            総資産に反映されます。
+                        </p>
+
+                        <a
+                            href="{% url 'expense:nisa_upload' %}"
+                            class="primary-button"
+                        >
+                            NISA評価額を入力
+                        </a>
+
+                        <div class="external-links">
+
+                            <span class="external-title">
+                                評価額を確認
+                            </span>
+
+                            <a
+                                href="https://www.rakuten-sec.co.jp/ITS/V_ACT_Login.html"
+                                target="_blank"
+                            >
+                                楽天証券
+                                <span>↗</span>
+                            </a>
+
+                        </div>
+
+                    </div>
+
+                </article>
+
+            </div>
+
+        </section>
+
+
+        <!-- =========================
+             資産
+        ========================== -->
+        <section class="dashboard-section">
+
+            <div class="section-heading">
+
+                <div>
+                    <span class="section-label">
+                        ASSETS
+                    </span>
+
+                    <h2>
+                        資産状況
+                    </h2>
+                </div>
+
+            </div>
+
+
+            <!-- 世帯総資産 -->
+            <div class="total-assets-card">
+
+                <div class="total-assets-label">
+                    世帯の総資産
+                </div>
+
+                <div class="total-assets-value">
+                    <span class="currency-mark">
+                        ¥
+                    </span>
+
+                    <span class="asset-number">
+                        {{ household_total_assets|intcomma }}
+                    </span>
+                </div>
+
+                <span class="total-assets-caption">
+                    銀行残高 + NISA評価額
+                </span>
+
+            </div>
+
+
+            <div class="asset-grid">
+
+
+                <!-- NISA -->
+                <div class="asset-card">
+
+                    <div class="asset-card-header">
+
+                        <div>
+                            <span class="card-label">
+                                NISA
+                            </span>
+
+                            <h3>
+                                現在の評価額
+                            </h3>
+                        </div>
+
+                    </div>
+
+                    <div class="asset-list">
+
+                        {% for nisa in nisa_list %}
+
+                            <div class="asset-row">
+
+                                <span class="asset-owner">
+                                    {{ nisa.owner }}
+                                </span>
+
+                                <span class="asset-value">
+                                    ¥{{ nisa.value|intcomma }}
+                                </span>
+
+                            </div>
+
+                        {% empty %}
+
+                            <div class="empty-message">
+                                NISAデータはまだ登録されていません。
+                            </div>
+
+                        {% endfor %}
+
+                    </div>
+
+                </div>
+
+
+                <!-- ユーザー別 -->
+                <div class="asset-card">
+
+                    <div class="asset-card-header">
+
+                        <div>
+                            <span class="card-label">
+                                USERS
+                            </span>
+
+                            <h3>
+                                ユーザー別資産
+                            </h3>
+                        </div>
+
+                    </div>
+
+                    <div class="user-assets">
+
+                        {% for username, data in asset_by_user.items %}
+
+                            <div class="user-asset-item">
+
+                                <div class="user-asset-header">
+
+                                    <span class="user-avatar">
+                                        {{ username|slice:":1" }}
+                                    </span>
+
+                                    <span class="user-name">
+                                        {{ username }}
+                                    </span>
+
+                                </div>
+
+                                <div class="user-asset-details">
+
+                                    <div class="asset-detail-row">
+                                        <span>
+                                            銀行残高
+                                        </span>
+
+                                        <strong>
+                                            ¥{{ data.bank|intcomma }}
+                                        </strong>
+                                    </div>
+
+                                    <div class="asset-detail-row total">
+                                        <span>
+                                            総資産
+                                        </span>
+
+                                        <strong>
+                                            ¥{{ data.total|intcomma }}
+                                        </strong>
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        {% empty %}
+
+                            <div class="empty-message">
+                                資産データがありません。
+                            </div>
+
+                        {% endfor %}
+
+                    </div>
+
+                </div>
+
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <script src="{% static 'expense/js/base.js' %}"></script>
 
 </body>
 </html>

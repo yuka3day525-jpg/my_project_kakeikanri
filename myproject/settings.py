@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     "expense.apps.ExpenseConfig",
+    'django.contrib.humanize',
 ]
 
 MIDDLEWARE = [
