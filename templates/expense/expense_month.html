@@ -97,7 +97,17 @@
         <td>{{ expense.store_name }}</td>
         <td>{{ expense.amount }}円</td>
         <td>{{ expense.category }}</td>
-        <td>{{ expense.classification_method }}</td>
+        <td>
+        {% if expense.classification_method == "ai" %}
+            🤖
+        {% elif expense.classification_method == "memory" %}
+            🗃️
+        {% elif expense.classification_method == "ml" %}
+            🧠  
+        {% else %}
+            📋
+        {% endif %}
+        </td>
         <td>
             <a href="{% url 'expense:expense_category_update' expense.pk %}">
             <!-- 一方、expense.pkを書かかないとpkに入れる値がないので、ページ表示時にだいたいエラーになる。expense.pkは今この行に表示しているExpenseデータのIDを表してる。
@@ -153,7 +163,17 @@
         <td>{{ rakuten.zankin }}円</td>
         <td>{{ rakuten.store_name }}</td>
         <td>{{ rakuten.category }}</td>
-        <td>{{ rakuten.classification_method }}</td>
+        <td>
+        {% if rakuten.classification_method == "ai" %}
+            🤖
+        {% elif rakuten.classification_method == "memory" %}
+            🗃️
+        {% elif rakuten.classification_method == "ml" %}
+            🧠  
+        {% else %}
+            📋
+        {% endif %}
+        </td>
         <td>
             <a href="{% url 'expense:ginkou_category_update' rakuten.pk %}">
             <!-- 一方、expense.pkを書かかないとpkに入れる値がないので、ページ表示時にだいたいエラーになる。expense.pkは今この行に表示しているExpenseデータのIDを表してる。
@@ -200,7 +220,17 @@
         <td>{{ ufj.zankin }}円</td>
         <td>{{ ufj.store_name }}</td>
         <td>{{ ufj.category }}</td>
-        <td>{{ ufj.classification_method }}</td>
+        <td>
+        {% if ufj.classification_method == "ai" %}
+            🤖
+        {% elif ufj.classification_method == "memory" %}
+            🗃️
+        {% elif ufj.classification_method == "ml" %}
+            🧠  
+        {% else %}
+            📋
+        {% endif %}
+        </td>
         <td>
             <a href="{% url 'expense:ginkou_category_update' ufj.pk %}">
             <!-- 一方、expense.pkを書かかないとpkに入れる値がないので、ページ表示時にだいたいエラーになる。expense.pkは今この行に表示しているExpenseデータのIDを表してる。
@@ -247,7 +277,17 @@
         <td>{{ roukin.zankin }}円</td>
         <td>{{ roukin.store_name }}</td>
         <td>{{ roukin.category }}</td>
-        <td>{{ roukin.classification_method }}</td>
+        <td>
+        {% if roukin.classification_method == "ai" %}
+            🤖
+        {% elif roukin.classification_method == "memory" %}
+            🗃️
+        {% elif roukin.classification_method == "ml" %}
+            🧠  
+        {% else %}
+            📋
+        {% endif %}
+        </td>
         <td>
             <a href="{% url 'expense:ginkou_category_update' roukin.pk %}">
             <!-- 一方、expense.pkを書かかないとpkに入れる値がないので、ページ表示時にだいたいエラーになる。expense.pkは今この行に表示しているExpenseデータのIDを表してる。
@@ -344,7 +384,17 @@
         <td>{{ expense.store_name }}</td>
         <td>{{ expense.amount }}円</td>
         <td>{{ expense.category }}</td>
-        <td>{{ expense.classification_method }}</td>
+        <td>
+        {% if expense.classification_method == "ai" %}
+            🤖
+        {% elif expense.classification_method == "memory" %}
+            🗃️
+        {% elif expense.classification_method == "ml" %}
+            🧠  
+        {% else %}
+            📋
+        {% endif %}
+        </td>
         <td>
             <a href="{% url 'expense:expense_category_update' expense.pk %}">
             <!-- 一方、expense.pkを書かかないとpkに入れる値がないので、ページ表示時にだいたいエラーになる。expense.pkは今この行に表示しているExpenseデータのIDを表してる。
@@ -395,7 +445,17 @@
         <td>{{ rakuten.zankin }}円</td>
         <td>{{ rakuten.store_name }}</td>
         <td>{{ rakuten.category }}</td>
-        <td>{{ rakuten.classification_method }}</td>
+        <td>
+        {% if rakuten.classification_method == "ai" %}
+            🤖
+        {% elif rakuten.classification_method == "memory" %}
+            🗃️
+        {% elif rakuten.classification_method == "ml" %}
+            🧠  
+        {% else %}
+            📋
+        {% endif %}
+        </td>
         <td>
             <a href="{% url 'expense:ginkou_category_update' rakuten.pk %}">
             <!-- 一方、expense.pkを書かかないとpkに入れる値がないので、ページ表示時にだいたいエラーになる。expense.pkは今この行に表示しているExpenseデータのIDを表してる。
@@ -441,7 +501,17 @@
         <td>{{ ufj.zankin }}円</td>
         <td>{{ ufj.store_name }}</td>
         <td>{{ ufj.category }}</td>
-        <td>{{ ufj.classification_method }}</td>
+        <td>
+        {% if ufj.classification_method == "ai" %}
+            🤖
+        {% elif ufj.classification_method == "memory" %}
+            🗃️
+        {% elif ufj.classification_method == "ml" %}
+            🧠  
+        {% else %}
+            📋
+        {% endif %}
+        </td>
         <td>
             <a href="{% url 'expense:ginkou_category_update' ufj.pk %}">
             <!-- 一方、expense.pkを書かかないとpkに入れる値がないので、ページ表示時にだいたいエラーになる。expense.pkは今この行に表示しているExpenseデータのIDを表してる。
@@ -488,7 +558,17 @@
         <td>{{ roukin.zankin }}円</td>
         <td>{{ roukin.store_name }}</td>
         <td>{{ roukin.category }}</td>
-        <td>{{ roukin.classification_method }}</td>
+        <td>
+        {% if roukin.classification_method == "ai" %}
+            🤖
+        {% elif roukin.classification_method == "memory" %}
+            🗃️
+        {% elif roukin.classification_method == "ml" %}
+            🧠  
+        {% else %}
+            📋
+        {% endif %}
+        </td>
         <td>
             <a href="{% url 'expense:ginkou_category_update' roukin.pk %}">
             <!-- 一方、expense.pkを書かかないとpkに入れる値がないので、ページ表示時にだいたいエラーになる。expense.pkは今この行に表示しているExpenseデータのIDを表してる。
