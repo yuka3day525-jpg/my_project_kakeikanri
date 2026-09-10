@@ -1,6 +1,7 @@
 from django.forms import BooleanField,ModelForm #formの基底クラス
 from .models import Expense,Bank,Nisa
 from django import forms
+from datetime import datetime
 
 class BaseCategoryForm(ModelForm):
     save_as_rule = BooleanField(#forms.BooleanField:Djangoフォームの真か偽かを入力する項目。画面上ではチェックボックスになる。□ この店名を今後も選択したカテゴリーに分類する
@@ -43,6 +44,22 @@ class CsvUploadForm_Expense(forms.Form):#CsvUploadFormはモデルと直接結�
         help_text="例：2026-08",
     )
 
+    def clean_billing_month(self):
+            billing_month = self.cleaned_data["billing_month"]
+    
+            try:
+                datetime.strptime(
+                    billing_month,
+                    "%Y-%m"
+                )
+    
+            except ValueError:
+                raise forms.ValidationError(
+                    "対象月は OOOO-OO 形式で入力してください。"
+                )
+    
+            return billing_month
+
 
 class CsvUploadForm_Bank(forms.Form):#CsvUploadFormはモデルと直接結びつかない（編集しない）ので、ModelFormではなく、forms.Formを使ってる。今回は、
 #CSVファイルを選ぶ,対象月を入力するためのフォームだから、forms.Formを使う。
@@ -61,6 +78,21 @@ class CsvUploadForm_Bank(forms.Form):#CsvUploadFormはモデルと直接結び�
         max_length=7,
         help_text="例：2026-08",
     )
+    def clean_billing_month(self):
+        billing_month = self.cleaned_data["billing_month"]
+
+        try:
+            datetime.strptime(
+                billing_month,
+                "%Y-%m"
+            )
+
+        except ValueError:
+            raise forms.ValidationError(
+                "対象月は OOOO-OO 形式で入力してください。"
+            )
+
+        return billing_month
 
 class NisaUploadForm(ModelForm):
     class Meta:
