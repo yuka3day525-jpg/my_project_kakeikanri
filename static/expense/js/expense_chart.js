@@ -25,6 +25,11 @@ new Chart(
                 }
             ],
         },
+
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+        },
     }
 );
 
@@ -61,6 +66,8 @@ new Chart(
         },
 
         options: {
+            responsive: true,
+            maintainAspectRatio: false,
             indexAxis: "y",
         },
     }
@@ -94,6 +101,10 @@ new Chart(
                     data: monthlyValues,
                 }
             ],
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
         },
     }
 );
@@ -138,6 +149,10 @@ new Chart(
                 }
             ],
         },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+        },
     }
 );
 
@@ -168,6 +183,11 @@ new Chart(
                     data: ownerValues,
                 }
             ],
+        },
+
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
         },
     }
 );
@@ -224,6 +244,10 @@ new Chart(
                 }
             ],
         },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+        },
     }
 );
 
@@ -260,6 +284,10 @@ new Chart(
                     data: myCategoryValues,
                 }
             ],
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
         },
     }
 );
@@ -298,6 +326,8 @@ new Chart(
 
         options: {
             indexAxis: "y",
+            responsive: true,
+            maintainAspectRatio: false,
         },
     }
 );
@@ -332,6 +362,10 @@ new Chart(
                     data: myMonthlyValues,
                 }
             ],
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
         },
     }
 );
@@ -377,6 +411,10 @@ new Chart(
                     data: myFoodHomeValues,
                 }
             ],
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
         },
     }
 );
@@ -434,6 +472,10 @@ new Chart(
                     type: "line",
                 }
             ],
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
         },
     }
 );

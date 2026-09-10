@@ -1258,6 +1258,603 @@ body {
     border-color: #18181b;
 }
 
+/* =========================================
+   EXPENSE MONTH PAGE
+========================================= */
+
+.expense-page {
+    width: min(1280px, calc(100% - 48px));
+    margin: 0 auto;
+    padding: 48px 0 100px;
+}
+
+
+/* =========================================
+   PAGE HEADER
+========================================= */
+
+.expense-page-header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 30px;
+
+    margin-bottom: 28px;
+}
+
+.month-title {
+    margin: 4px 0 0;
+
+    font-size: 32px;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+
+    color: #18181b;
+}
+
+.month-navigation {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+}
+
+.small-month-button {
+    padding: 7px 12px;
+
+    background: #ffffff;
+    color: #71717a;
+
+    border: 1px solid #e4e4e7;
+    border-radius: 8px;
+
+    text-decoration: none;
+
+    font-size: 12px;
+    font-weight: 600;
+
+    transition: 0.2s;
+}
+
+.small-month-button:hover {
+    background: #f4f4f5;
+    color: #18181b;
+}
+
+.small-month-button.active {
+    background: #18181b;
+    color: #ffffff;
+
+    border-color: #18181b;
+}
+
+/* =========================
+   トップに戻る
+========================= */
+
+.top-actions {
+    margin-bottom: 24px;
+}
+
+.top-back-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+
+    padding: 9px 14px;
+
+    background: #ffffff;
+    color: #52525b;
+
+    border: 1px solid #e4e4e7;
+    border-radius: 9px;
+
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 700;
+
+    transition: 0.2s;
+}
+
+.top-back-button:hover {
+    background: #18181b;
+    color: #ffffff;
+    border-color: #18181b;
+}
+
+/* =========================================
+   TABS
+========================================= */
+
+.view-tabs {
+    display: inline-flex;
+
+    padding: 5px;
+
+    margin-bottom: 42px;
+
+    background: #ececef;
+
+    border-radius: 12px;
+}
+
+.view-tab {
+    min-width: 145px;
+
+    padding: 11px 28px;
+
+    background: transparent;
+    color: #71717a;
+
+    border: none;
+    border-radius: 9px;
+
+    font-size: 14px;
+    font-weight: 700;
+
+    cursor: pointer;
+
+    transition: 0.2s;
+}
+
+.view-tab:hover {
+    color: #18181b;
+}
+
+.view-tab.active {
+    background: #18181b;
+    color: #ffffff;
+
+    box-shadow:
+        0 3px 10px rgba(0, 0, 0, 0.14);
+}
+
+.tab-panel {
+    display: none;
+}
+
+.tab-panel.active {
+    display: block;
+}
+
+
+/* =========================================
+   SECTION
+========================================= */
+
+.dashboard-section {
+    margin-bottom: 64px;
+}
+
+.section-heading {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+
+    margin-bottom: 20px;
+}
+
+.section-heading h2 {
+    margin: 4px 0 0;
+
+    font-size: 25px;
+    font-weight: 700;
+
+    color: #18181b;
+}
+
+.section-label {
+    color: #8a8a93;
+
+    font-size: 10px;
+    font-weight: 800;
+
+    letter-spacing: 0.17em;
+}
+
+
+/* =========================================
+   CHART GRID
+========================================= */
+
+.chart-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+
+    gap: 20px;
+}
+
+
+/* =========================================
+   CHART CARD
+========================================= */
+
+.chart-card {
+    min-width: 0;
+
+    padding: 24px;
+
+    background: #ffffff;
+
+    border: 1px solid #e7e7eb;
+    border-radius: 18px;
+
+    box-shadow:
+        0 6px 22px
+        rgba(15, 23, 42, 0.045);
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.chart-card:hover {
+    transform: translateY(-2px);
+
+    box-shadow:
+        0 10px 28px
+        rgba(15, 23, 42, 0.075);
+}
+
+.chart-card-wide {
+    grid-column: span 2;
+}
+
+.chart-card-header {
+    margin-bottom: 20px;
+}
+
+.chart-card-header h3 {
+    margin: 3px 0 0;
+
+    color: #27272a;
+
+    font-size: 18px;
+}
+
+.chart-label {
+    color: #a1a1aa;
+
+    font-size: 9px;
+    font-weight: 800;
+
+    letter-spacing: 0.16em;
+}
+
+
+/* =========================================
+   CHART SIZE
+========================================= */
+
+.chart-container {
+    position: relative;
+
+    width: 100%;
+    height: 280px;
+}
+
+.chart-container.pie-chart {
+    height: 320px;
+}
+
+.chart-container.detail-chart {
+    height: 500px;
+}
+
+.chart-container canvas {
+    max-width: 100% !important;
+    max-height: 100% !important;
+}
+
+
+/* =========================================
+   DATA CARD
+========================================= */
+
+.data-card {
+    background: #ffffff;
+
+    border: 1px solid #e7e7eb;
+    border-radius: 18px;
+
+    overflow: hidden;
+
+    box-shadow:
+        0 6px 22px
+        rgba(15, 23, 42, 0.045);
+}
+
+
+/* =========================================
+   TABLE TOOLBAR
+========================================= */
+
+.table-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 20px;
+
+    padding: 18px 22px;
+
+    background: #fafafa;
+
+    border-bottom: 1px solid #ececef;
+}
+
+.table-description {
+    color: #71717a;
+
+    font-size: 13px;
+}
+
+.select-all-button {
+    padding: 8px 14px;
+
+    background: #ffffff;
+    color: #3f3f46;
+
+    border: 1px solid #d4d4d8;
+    border-radius: 8px;
+
+    font-size: 12px;
+    font-weight: 700;
+
+    cursor: pointer;
+
+    transition: 0.2s;
+}
+
+.select-all-button:hover {
+    background: #18181b;
+    color: #ffffff;
+
+    border-color: #18181b;
+}
+
+
+/* =========================================
+   TABLE
+========================================= */
+
+.table-scroll {
+    width: 100%;
+
+    overflow-x: auto;
+}
+
+.money-table {
+    width: 100%;
+
+    border-collapse: collapse;
+
+    font-size: 13px;
+}
+
+.money-table th {
+    padding: 13px 14px;
+
+    background: #f7f7f8;
+    color: #71717a;
+
+    border-bottom: 1px solid #e4e4e7;
+
+    text-align: left;
+
+    font-size: 11px;
+    font-weight: 800;
+
+    letter-spacing: 0.04em;
+
+    white-space: nowrap;
+}
+
+.money-table td {
+    padding: 12px 14px;
+
+    color: #3f3f46;
+
+    border-bottom: 1px solid #eeeeef;
+
+    vertical-align: middle;
+}
+
+.money-table tbody tr {
+    transition: background 0.15s;
+}
+
+.money-table tbody tr:hover {
+    background: #fafafa;
+}
+
+.money-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.store-name {
+    max-width: 380px;
+
+    color: #27272a;
+}
+
+.money-value {
+    white-space: nowrap;
+
+    font-weight: 600;
+}
+
+
+/* =========================================
+   BADGES
+========================================= */
+
+.user-badge {
+    display: inline-flex;
+
+    padding: 4px 8px;
+
+    background: #f4f4f5;
+    color: #52525b;
+
+    border-radius: 100px;
+
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.category-badge {
+    display: inline-flex;
+
+    padding: 4px 9px;
+
+    background: #eef2ff;
+    color: #4338ca;
+
+    border-radius: 100px;
+
+    font-size: 11px;
+    font-weight: 600;
+
+    white-space: nowrap;
+}
+
+.classification {
+    text-align: center;
+
+    font-size: 17px;
+}
+
+
+/* =========================================
+   EDIT
+========================================= */
+
+.edit-link {
+    display: inline-flex;
+
+    padding: 5px 10px;
+
+    color: #52525b;
+    background: #f4f4f5;
+
+    border-radius: 7px;
+
+    text-decoration: none;
+
+    font-size: 11px;
+    font-weight: 700;
+
+    transition: 0.2s;
+}
+
+.edit-link:hover {
+    color: #ffffff;
+    background: #18181b;
+}
+
+
+/* =========================================
+   CHECKBOX
+========================================= */
+
+.memory-checkbox {
+    width: 17px;
+    height: 17px;
+
+    accent-color: #18181b;
+
+    cursor: pointer;
+}
+
+
+/* =========================================
+   TABLE FOOTER
+========================================= */
+
+.table-footer {
+    display: flex;
+    justify-content: flex-end;
+
+    padding: 18px 22px;
+
+    background: #fafafa;
+
+    border-top: 1px solid #ececef;
+}
+
+.memory-save-button {
+    padding: 10px 18px;
+
+    background: #18181b;
+    color: #ffffff;
+
+    border: none;
+    border-radius: 9px;
+
+    font-size: 12px;
+    font-weight: 700;
+
+    cursor: pointer;
+
+    transition: 0.2s;
+}
+
+.memory-save-button:hover {
+    background: #3730a3;
+
+    transform: translateY(-1px);
+}
+
+
+/* =========================================
+   BANK
+========================================= */
+
+.bank-block {
+    padding: 26px 22px;
+}
+
+.bank-block + .bank-block {
+    border-top: 8px solid #f4f5f7;
+}
+
+.bank-title-row {
+    margin-bottom: 15px;
+}
+
+.bank-title-row h3 {
+    margin: 2px 0 0;
+
+    color: #27272a;
+
+    font-size: 18px;
+}
+
+.bank-label {
+    color: #a1a1aa;
+
+    font-size: 9px;
+    font-weight: 800;
+
+    letter-spacing: 0.15em;
+}
+
+
+/* =========================================
+   EMPTY
+========================================= */
+
+.empty-table {
+    padding: 35px !important;
+
+    color: #a1a1aa !important;
+
+    text-align: center;
+}
+
+
 
 
 
@@ -1277,6 +1874,19 @@ body {
 
     .user-assets {
         grid-template-columns: 1fr;
+    }
+
+    .chart-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .chart-card-wide {
+        grid-column: span 1;
+    }
+
+    .expense-page-header {
+        flex-direction: column;
+        align-items: flex-start;
     }
 }
 
@@ -1321,6 +1931,40 @@ body {
         font-weight: bold;
         background: #27272a;
         border-color: #7b7b8b;
+    }
+
+     .expense-page {
+        width: calc(100% - 28px);
+
+        padding-top: 30px;
+    }
+
+    .month-title {
+        font-size: 26px;
+    }
+
+    .view-tabs {
+        display: flex;
+
+        width: 100%;
+    }
+
+    .view-tab {
+        flex: 1;
+
+        min-width: 0;
+    }
+
+    .chart-container {
+        height: 240px;
+    }
+
+    .chart-container.pie-chart {
+        height: 260px;
+    }
+
+    .chart-container.detail-chart {
+        height: 420px;
     }
     
 }

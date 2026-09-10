@@ -8,18 +8,131 @@
 
 </head>
 <body>
+<header class="app-header">
 
-<p><a href="{% url 'expense:expense_index' %}">トップへ</a></p>
+    <div class="header-left">
 
-<p>
-    {% for item in month_list %}
-        <a href="{% url 'expense:expense_month' item %}">
-            {{ item }}
+        <button
+            type="button"
+            class="menu-button"
+            id="menuButton"
+            aria-label="メニューを開く"
+        >
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+
+        <div class="brand">
+            <h1 class="brand-title">
+                MoneyMind
+            </h1>
+
+            <span class="brand-subtitle">
+                Smart Household Finance
+            </span>
+        </div>
+
+    </div>
+
+</header>
+
+<aside
+    class="side-menu"
+    id="sideMenu"
+>
+
+    <div class="side-menu-header">
+
+        <span class="side-menu-title">
+            過去の年度
+        </span>
+
+        <button
+            type="button"
+            class="side-menu-close"
+            id="menuClose"
+        >
+            ×
+        </button>
+
+    </div>
+
+    <div class="year-menu">
+
+        <div class="year-item">
+            <span class="year-label">
+                2025
+            </span>
+
+            <div class="year-months">
+                <a href="#">2025-12</a>
+                <a href="#">2025-11</a>
+                <a href="#">2025-10</a>
+            </div>
+        </div>
+
+        <div class="year-item">
+            <span class="year-label">
+                2024
+            </span>
+
+            <div class="year-months">
+                <a href="#">2024-12</a>
+                <a href="#">2024-11</a>
+            </div>
+        </div>
+
+    </div>
+
+</aside>
+
+<div
+    class="menu-overlay"
+    id="menuOverlay"
+></div>
+
+<main class="expense-page">
+
+    <div class="top-actions">
+
+        <a
+            href="{% url 'expense:expense_index' %}"
+            class="top-back-button"
+        >
+            ← トップページへ戻る
         </a>
-    {% endfor %}
-</p>
 
-<h1>{{ month }}家計管理</h1>
+    </div>
+
+    <div class="expense-page-header">
+
+        <div>
+            <span class="section-label">
+                MONTHLY REPORT
+            </span>
+
+            <h1 class="month-title">
+                {{ month }} 家計管理
+            </h1>
+        </div>
+
+        <div class="month-navigation">
+
+            {% for item in month_list %}
+
+                <a
+                    href="{% url 'expense:expense_month' item %}"
+                    class="small-month-button {% if item == month %}active{% endif %}"
+                >
+                    {{ item }}
+                </a>
+
+            {% endfor %}
+
+        </div>
+
+    </div>
 
 <div class="view-tabs">
 
@@ -46,638 +159,1734 @@
     class="tab-panel active"
 >
 
-<h1>世帯用グラフ</h1>
+<section class="dashboard-section">
 
-<h2>カテゴリー別支出、円グラフ</h2>
-<div class="chart-box">
-    <canvas id="categoryChart"></canvas>
-    {{ chart_labels|json_script:"chart-labels" }}
-    {{ chart_values|json_script:"chart-values" }}
-</div>
+    <div class="section-heading">
 
-<h2>細かいカテゴリの横棒グラフ（世帯）</h2>
-<div class="chart-bar">
-    <canvas id="detailCategoryChart"></canvas>
-    {{ detail_chart_labels|json_script:"detail-chart-labels" }}
-    {{ detail_chart_values|json_script:"detail-chart-values" }}
-</div>
+        <div>
+            <span class="section-label">
+                HOUSEHOLD
+            </span>
 
-<h2>月別支出、折れ線グラフ（世帯）</h2>
-<div class="chart-box">
-    <canvas id="monthlyChart"></canvas>
-    {{ monthly_labels|json_script:"monthly-labels" }}
-    {{ monthly_values|json_script:"monthly-values" }}
-</div>
+            <h2>
+                世帯ダッシュボード
+            </h2>
+        </div>
 
-<h2>食費推移（世帯）</h2>
-<div class="chart-box">
-    <canvas id="foodChart"></canvas>
-
-    {{ food_monthly_labels|json_script:"food-monthly-labels" }}
-    {{ food_out_values|json_script:"food-out-values" }}
-    {{ food_home_values|json_script:"food-home-values" }}
-</div>
-
-<h2>利用者別支出、円グラフ</h2>
-<div class="chart-box">
-    <canvas id="ownerChart"></canvas>
-
-    {{ owner_labels|json_script:"owner-labels" }}
-    {{ owner_values|json_script:"owner-values" }}
-</div>
-
-<h2>月間収支（世帯）</h2>
-<div class="chart-box">
-    <canvas id="profitChart"></canvas>
-
-    {{ profit_labels|json_script:"profit-labels" }}
-    {{ profit_income_values|json_script:"profit-income-values" }}
-    {{ profit_expense_values|json_script:"profit-expense-values" }}
-    {{ profit_values|json_script:"profit-values" }}
-</div>
+    </div>
 
 
+    <div class="chart-grid">
 
-<h1>楽天カード利用明細 世帯一覧</h1>
-<form method="post" action="{% url 'expense:bulk_save_rules' %}">
-<input type="hidden" name="month" value="{{ month }}">
-{% csrf_token %}
 
-<div class="bulk-actions">
+        <!-- カテゴリー -->
+        <article class="chart-card">
 
-        <button
-            type="button"
-            class="select-all-button"
-            data-checkbox-name="selected_expenses"
+            <div class="chart-card-header">
+                <div>
+                    <span class="chart-label">
+                        CATEGORY
+                    </span>
+
+                    <h3>
+                        カテゴリー別支出
+                    </h3>
+                </div>
+            </div>
+
+            <div class="chart-container pie-chart">
+                <canvas id="categoryChart"></canvas>
+            </div>
+
+            {{ chart_labels|json_script:"chart-labels" }}
+            {{ chart_values|json_script:"chart-values" }}
+
+        </article>
+
+
+        <!-- 利用者別 -->
+        <article class="chart-card">
+
+            <div class="chart-card-header">
+
+                <div>
+                    <span class="chart-label">
+                        USERS
+                    </span>
+
+                    <h3>
+                        利用者別支出
+                    </h3>
+                </div>
+
+            </div>
+
+            <div class="chart-container pie-chart">
+                <canvas id="ownerChart"></canvas>
+            </div>
+
+            {{ owner_labels|json_script:"owner-labels" }}
+            {{ owner_values|json_script:"owner-values" }}
+
+        </article>
+
+
+        <!-- 月別支出 -->
+        <article class="chart-card">
+
+            <div class="chart-card-header">
+
+                <div>
+                    <span class="chart-label">
+                        MONTHLY
+                    </span>
+
+                    <h3>
+                        月別支出推移
+                    </h3>
+                </div>
+
+            </div>
+
+            <div class="chart-container">
+                <canvas id="monthlyChart"></canvas>
+            </div>
+
+            {{ monthly_labels|json_script:"monthly-labels" }}
+            {{ monthly_values|json_script:"monthly-values" }}
+
+        </article>
+
+
+        <!-- 食費 -->
+        <article class="chart-card">
+
+            <div class="chart-card-header">
+
+                <div>
+                    <span class="chart-label">
+                        FOOD
+                    </span>
+
+                    <h3>
+                        食費推移
+                    </h3>
+                </div>
+
+            </div>
+
+            <div class="chart-container">
+                <canvas id="foodChart"></canvas>
+            </div>
+
+            {{ food_monthly_labels|json_script:"food-monthly-labels" }}
+            {{ food_out_values|json_script:"food-out-values" }}
+            {{ food_home_values|json_script:"food-home-values" }}
+
+        </article>
+
+
+        <!-- 月間収支 -->
+        <article class="chart-card chart-card-wide">
+
+            <div class="chart-card-header">
+
+                <div>
+                    <span class="chart-label">
+                        CASH FLOW
+                    </span>
+
+                    <h3>
+                        月間収支
+                    </h3>
+                </div>
+
+            </div>
+
+            <div class="chart-container">
+                <canvas id="profitChart"></canvas>
+            </div>
+
+            {{ profit_labels|json_script:"profit-labels" }}
+            {{ profit_income_values|json_script:"profit-income-values" }}
+            {{ profit_expense_values|json_script:"profit-expense-values" }}
+            {{ profit_values|json_script:"profit-values" }}
+
+        </article>
+
+
+        <!-- 細かいカテゴリー -->
+        <article class="chart-card chart-card-wide">
+
+            <div class="chart-card-header">
+
+                <div>
+                    <span class="chart-label">
+                        DETAILS
+                    </span>
+
+                    <h3>
+                        支出カテゴリー詳細
+                    </h3>
+                </div>
+
+            </div>
+
+            <div class="chart-container detail-chart">
+                <canvas id="detailCategoryChart"></canvas>
+            </div>
+
+            {{ detail_chart_labels|json_script:"detail-chart-labels" }}
+            {{ detail_chart_values|json_script:"detail-chart-values" }}
+
+        </article>
+
+    </div>
+
+</section>
+
+
+
+<section class="dashboard-section">
+
+    <div class="section-heading">
+
+        <div>
+            <span class="section-label">
+                CREDIT CARD
+            </span>
+
+            <h2>
+                楽天カード利用明細
+            </h2>
+        </div>
+
+    </div>
+
+
+    <div class="data-card">
+
+        <form
+            method="post"
+            action="{% url 'expense:bulk_save_rules' %}"
         >
-            すべて選択
-        </button>
 
+            {% csrf_token %}
+
+            <input
+                type="hidden"
+                name="month"
+                value="{{ month }}"
+            >
+
+
+            <div class="table-toolbar">
+
+                <span class="table-description">
+                    記憶させたい明細を選択してください
+                </span>
+
+                <button
+                    type="button"
+                    class="select-all-button"
+                    data-checkbox-name="selected_expenses"
+                >
+                    すべて選択
+                </button>
+
+            </div>
+
+
+            <div class="table-scroll">
+
+                <table class="money-table">
+
+                    <thead>
+                        <tr>
+                            <th>利用者</th>
+                            <th>利用日</th>
+                            <th>利用店名</th>
+                            <th>金額</th>
+                            <th>カテゴリー</th>
+                            <th>分類</th>
+                            <th>編集</th>
+                            <th>記憶</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                    {% for expense in expenses %}
+
+                        <tr>
+
+                            <td>
+                                <span class="user-badge">
+                                    {{ expense.owner }}
+                                </span>
+                            </td>
+
+                            <td>
+                                {{ expense.used_date }}
+                            </td>
+
+                            <td class="store-name">
+                                {{ expense.store_name }}
+                            </td>
+
+                            <td class="money-value">
+                                ¥{{ expense.amount }}
+                            </td>
+
+                            <td>
+                                <span class="category-badge">
+                                    {{ expense.category }}
+                                </span>
+                            </td>
+
+                            <td class="classification">
+
+                                {% if expense.classification_method == "ai" %}
+                                    <span title="AI分類">🤖</span>
+
+                                {% elif expense.classification_method == "memory" %}
+                                    <span title="記憶分類">🗃️</span>
+
+                                {% elif expense.classification_method == "ml" %}
+                                    <span title="機械学習">🧠</span>
+
+                                {% else %}
+                                    <span title="手動">📋</span>
+                                {% endif %}
+
+                            </td>
+
+                            <td>
+                                <a
+                                    href="{% url 'expense:expense_category_update' expense.pk %}"
+                                    class="edit-link"
+                                >
+                                    変更
+                                </a>
+                            </td>
+
+                            <td>
+                                <input
+                                    type="checkbox"
+                                    name="selected_expenses"
+                                    value="{{ expense.pk }}"
+                                    class="memory-checkbox"
+                                >
+                            </td>
+
+                        </tr>
+
+                    {% empty %}
+
+                        <tr>
+                            <td
+                                colspan="8"
+                                class="empty-table"
+                            >
+                                明細がありません。
+                            </td>
+                        </tr>
+
+                    {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+
+            <div class="table-footer">
+
+                <button
+                    type="submit"
+                    class="memory-save-button"
+                >
+                    選択したカテゴリーを一括記憶
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</section>
+
+
+<!-- =========================
+     銀行利用明細
+========================= -->
+
+<section class="dashboard-section">
+
+    <div class="section-heading">
+
+        <div>
+            <span class="section-label">
+                BANK
+            </span>
+
+            <h2>
+                銀行利用明細
+            </h2>
+        </div>
+
+    </div>
+
+
+    <div class="data-card">
+
+        <form
+            method="post"
+            action="{% url 'expense:bank_bulk_save_rules' %}"
+        >
+
+            {% csrf_token %}
+
+            <input
+                type="hidden"
+                name="month"
+                value="{{ month }}"
+            >
+
+
+            <!-- 銀行全体の操作 -->
+            <div class="table-toolbar">
+
+                <span class="table-description">
+                    記憶させたい銀行明細を選択してください
+                </span>
+
+                <button
+                    type="button"
+                    class="select-all-button"
+                    data-checkbox-name="selected_banks"
+                >
+                    すべて選択
+                </button>
+
+            </div>
+
+
+
+            <!-- =========================
+                 楽天銀行
+            ========================= -->
+
+            <div class="bank-block">
+
+                <div class="bank-title-row">
+
+                    <div>
+                        <span class="bank-label">
+                            RAKUTEN BANK
+                        </span>
+
+                        <h3>
+                            楽天銀行
+                        </h3>
+                    </div>
+
+                </div>
+
+
+                <div class="table-scroll">
+
+                    <table class="money-table">
+
+                        <thead>
+
+                            <tr>
+                                <th>利用者</th>
+                                <th>利用日</th>
+                                <th>入出金</th>
+                                <th>取引後残高</th>
+                                <th>内容</th>
+                                <th>カテゴリー</th>
+                                <th>分類</th>
+                                <th>編集</th>
+                                <th>記憶</th>
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody>
+
+                        {% for rakuten in rakutens %}
+
+                            <tr>
+
+                                <td>
+                                    <span class="user-badge">
+                                        {{ rakuten.owner }}
+                                    </span>
+                                </td>
+
+                                <td>
+                                    {{ rakuten.used_date }}
+                                </td>
+
+                                <td class="money-value">
+                                    ¥{{ rakuten.amount }}
+                                </td>
+
+                                <td class="money-value">
+                                    ¥{{ rakuten.zankin }}
+                                </td>
+
+                                <td class="store-name">
+                                    {{ rakuten.store_name }}
+                                </td>
+
+                                <td>
+                                    <span class="category-badge">
+                                        {{ rakuten.category }}
+                                    </span>
+                                </td>
+
+                                <td class="classification">
+
+                                    {% if rakuten.classification_method == "ai" %}
+
+                                        <span title="AI分類">
+                                            🤖
+                                        </span>
+
+                                    {% elif rakuten.classification_method == "memory" %}
+
+                                        <span title="記憶分類">
+                                            🗃️
+                                        </span>
+
+                                    {% elif rakuten.classification_method == "ml" %}
+
+                                        <span title="機械学習">
+                                            🧠
+                                        </span>
+
+                                    {% else %}
+
+                                        <span title="手動分類">
+                                            📋
+                                        </span>
+
+                                    {% endif %}
+
+                                </td>
+
+                                <td>
+
+                                    <a
+                                        href="{% url 'expense:ginkou_category_update' rakuten.pk %}"
+                                        class="edit-link"
+                                    >
+                                        変更
+                                    </a>
+
+                                </td>
+
+                                <td>
+
+                                    <input
+                                        type="checkbox"
+                                        name="selected_banks"
+                                        value="{{ rakuten.pk }}"
+                                        class="memory-checkbox"
+                                    >
+
+                                </td>
+
+                            </tr>
+
+
+                        {% empty %}
+
+                            <tr>
+
+                                <td
+                                    colspan="9"
+                                    class="empty-table"
+                                >
+                                    楽天銀行の明細はありません。
+                                </td>
+
+                            </tr>
+
+                        {% endfor %}
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- =========================
+                 三菱UFJ銀行
+            ========================= -->
+
+            <div class="bank-block">
+
+                <div class="bank-title-row">
+
+                    <div>
+                        <span class="bank-label">
+                            MUFG
+                        </span>
+
+                        <h3>
+                            三菱UFJ銀行
+                        </h3>
+                    </div>
+
+                </div>
+
+
+                <div class="table-scroll">
+
+                    <table class="money-table">
+
+                        <thead>
+
+                            <tr>
+                                <th>利用者</th>
+                                <th>利用日</th>
+                                <th>入出金</th>
+                                <th>取引後残高</th>
+                                <th>内容</th>
+                                <th>カテゴリー</th>
+                                <th>分類</th>
+                                <th>編集</th>
+                                <th>記憶</th>
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody>
+
+                        {% for ufj in ufjs %}
+
+                            <tr>
+
+                                <td>
+                                    <span class="user-badge">
+                                        {{ ufj.owner }}
+                                    </span>
+                                </td>
+
+                                <td>
+                                    {{ ufj.used_date }}
+                                </td>
+
+                                <td class="money-value">
+                                    ¥{{ ufj.amount }}
+                                </td>
+
+                                <td class="money-value">
+                                    ¥{{ ufj.zankin }}
+                                </td>
+
+                                <td class="store-name">
+                                    {{ ufj.store_name }}
+                                </td>
+
+                                <td>
+                                    <span class="category-badge">
+                                        {{ ufj.category }}
+                                    </span>
+                                </td>
+
+                                <td class="classification">
+
+                                    {% if ufj.classification_method == "ai" %}
+
+                                        <span title="AI分類">
+                                            🤖
+                                        </span>
+
+                                    {% elif ufj.classification_method == "memory" %}
+
+                                        <span title="記憶分類">
+                                            🗃️
+                                        </span>
+
+                                    {% elif ufj.classification_method == "ml" %}
+
+                                        <span title="機械学習">
+                                            🧠
+                                        </span>
+
+                                    {% else %}
+
+                                        <span title="手動分類">
+                                            📋
+                                        </span>
+
+                                    {% endif %}
+
+                                </td>
+
+                                <td>
+
+                                    <a
+                                        href="{% url 'expense:ginkou_category_update' ufj.pk %}"
+                                        class="edit-link"
+                                    >
+                                        変更
+                                    </a>
+
+                                </td>
+
+                                <td>
+
+                                    <input
+                                        type="checkbox"
+                                        name="selected_banks"
+                                        value="{{ ufj.pk }}"
+                                        class="memory-checkbox"
+                                    >
+
+                                </td>
+
+                            </tr>
+
+
+                        {% empty %}
+
+                            <tr>
+
+                                <td
+                                    colspan="9"
+                                    class="empty-table"
+                                >
+                                    三菱UFJ銀行の明細はありません。
+                                </td>
+
+                            </tr>
+
+                        {% endfor %}
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- =========================
+                 ろうきん
+            ========================= -->
+
+            <div class="bank-block">
+
+                <div class="bank-title-row">
+
+                    <div>
+                        <span class="bank-label">
+                            ROUKIN
+                        </span>
+
+                        <h3>
+                            ろうきん
+                        </h3>
+                    </div>
+
+                </div>
+
+
+                <div class="table-scroll">
+
+                    <table class="money-table">
+
+                        <thead>
+
+                            <tr>
+                                <th>利用者</th>
+                                <th>利用日</th>
+                                <th>入出金</th>
+                                <th>取引後残高</th>
+                                <th>内容</th>
+                                <th>カテゴリー</th>
+                                <th>分類</th>
+                                <th>編集</th>
+                                <th>記憶</th>
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody>
+
+                        {% for roukin in roukins %}
+
+                            <tr>
+
+                                <td>
+                                    <span class="user-badge">
+                                        {{ roukin.owner }}
+                                    </span>
+                                </td>
+
+                                <td>
+                                    {{ roukin.used_date }}
+                                </td>
+
+                                <td class="money-value">
+                                    ¥{{ roukin.amount }}
+                                </td>
+
+                                <td class="money-value">
+                                    ¥{{ roukin.zankin }}
+                                </td>
+
+                                <td class="store-name">
+                                    {{ roukin.store_name }}
+                                </td>
+
+                                <td>
+                                    <span class="category-badge">
+                                        {{ roukin.category }}
+                                    </span>
+                                </td>
+
+                                <td class="classification">
+
+                                    {% if roukin.classification_method == "ai" %}
+
+                                        <span title="AI分類">
+                                            🤖
+                                        </span>
+
+                                    {% elif roukin.classification_method == "memory" %}
+
+                                        <span title="記憶分類">
+                                            🗃️
+                                        </span>
+
+                                    {% elif roukin.classification_method == "ml" %}
+
+                                        <span title="機械学習">
+                                            🧠
+                                        </span>
+
+                                    {% else %}
+
+                                        <span title="手動分類">
+                                            📋
+                                        </span>
+
+                                    {% endif %}
+
+                                </td>
+
+                                <td>
+
+                                    <a
+                                        href="{% url 'expense:ginkou_category_update' roukin.pk %}"
+                                        class="edit-link"
+                                    >
+                                        変更
+                                    </a>
+
+                                </td>
+
+                                <td>
+
+                                    <input
+                                        type="checkbox"
+                                        name="selected_banks"
+                                        value="{{ roukin.pk }}"
+                                        class="memory-checkbox"
+                                    >
+
+                                </td>
+
+                            </tr>
+
+
+                        {% empty %}
+
+                            <tr>
+
+                                <td
+                                    colspan="9"
+                                    class="empty-table"
+                                >
+                                    ろうきんの明細はありません。
+                                </td>
+
+                            </tr>
+
+                        {% endfor %}
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- =========================
+                 一括保存
+            ========================= -->
+
+            <div class="table-footer">
+
+                <button
+                    type="submit"
+                    class="memory-save-button"
+                >
+                    選択したカテゴリーを一括記憶
+                </button>
+
+            </div>
+
+
+        </form>
+
+    </div>
+
+</section>
 </div>
 
-<table border="1">
-    <tr>
-        <th>利用者</th>
-        <th>利用日</th>
-        <th>利用店名</th>
-        <th>金額</th>
-        <th>カテゴリー</th>
-        <th>分類方法</th>
-        <th>編集する</th>
-        <th>記憶</th>
-    </tr>
-
-    {% for expense in expenses %}
-    <tr>
-        <td>{{ expense.owner }}</td>
-        <td>{{ expense.used_date }}</td>
-        <td>{{ expense.store_name }}</td>
-        <td>{{ expense.amount }}円</td>
-        <td>{{ expense.category }}</td>
-        <td>
-        {% if expense.classification_method == "ai" %}
-            🤖
-        {% elif expense.classification_method == "memory" %}
-            🗃️
-        {% elif expense.classification_method == "ml" %}
-            🧠  
-        {% else %}
-            📋
-        {% endif %}
-        </td>
-        <td>
-            <a href="{% url 'expense:expense_category_update' expense.pk %}">
-            <!-- 一方、expense.pkを書かかないとpkに入れる値がないので、ページ表示時にだいたいエラーになる。expense.pkは今この行に表示しているExpenseデータのIDを表してる。
-            ちなみにpkはprimary keyの略で、今回ならDjangoが自動で作ったidとほぼ同じ。 -->
-              変更
-            </a>
-        </td>
-        <td>
-            <input
-                type="checkbox"
-                name="selected_expenses"
-                value="{{ expense.pk }}"
-            >
-        </td>
-
-    </tr>
-    {% empty %}
-    <tr>
-        <td colspan="8">明細がありません。</td>
-        <!-- これは、表の4列分を横につなげて1つのセルにするという意味。普通に書くと1列分だけになるがcolspan="4"を付けると、4列分の幅を使って表示される。 -->
-    </tr>
-    {% endfor %}
-</table>
-<button type="submit">選択したカテゴリーを一括記憶</button>
-</form>
-
-<h1>楽天銀行利用明細 世帯一覧</h1>
-<form method="post" action="{% url 'expense:bank_bulk_save_rules' %}">
-{% csrf_token %}
-<input type="hidden" name="month" value="{{ month }}" />
-
-<div class="bulk-actions">
-
-    <button
-        type="button"
-        class="select-all-button"
-        data-checkbox-name="selected_banks"
-    >
-        すべて選択
-    </button>
-
-</div>
-
-
-<table border="1">
-    <tr>
-        <th>利用者</th>
-        <th>利用日</th>
-        <th>入出金</th>
-        <th>取引後残高</th>
-        <th>内容</th>
-        <th>カテゴリー</th>
-        <th>分類方法</th>
-        <th>編集する</th>
-        <th>記憶</th>
-    </tr>
-
-    {% for rakuten in rakutens %}
-    <tr>
-        <td>{{ rakuten.owner }}</td>
-        <td>{{ rakuten.used_date }}</td>
-        <td>{{ rakuten.amount }}</td>
-        <td>{{ rakuten.zankin }}円</td>
-        <td>{{ rakuten.store_name }}</td>
-        <td>{{ rakuten.category }}</td>
-        <td>
-        {% if rakuten.classification_method == "ai" %}
-            🤖
-        {% elif rakuten.classification_method == "memory" %}
-            🗃️
-        {% elif rakuten.classification_method == "ml" %}
-            🧠  
-        {% else %}
-            📋
-        {% endif %}
-        </td>
-        <td>
-            <a href="{% url 'expense:ginkou_category_update' rakuten.pk %}">
-            <!-- 一方、expense.pkを書かかないとpkに入れる値がないので、ページ表示時にだいたいエラーになる。expense.pkは今この行に表示しているExpenseデータのIDを表してる。
-            ちなみにpkはprimary keyの略で、今回ならDjangoが自動で作ったidとほぼ同じ。 -->
-              変更
-            </a>
-        </td>
-        <td>
-            <input
-                type="checkbox"
-                name="selected_banks"
-                value="{{ rakuten.pk }}"
-            >
-        </td>
-    </tr>
-    {% empty %}
-    <tr>
-        <td colspan="9">明細がありません。</td>
-        <!-- これは、表の4列分を横につなげて1つのセルにするという意味。普通に書くと1列分だけになるがcolspan="4"を付けると、4列分の幅を使って表示される。 -->
-    </tr>
-    {% endfor %}
-</table>
-
-<h1>三菱UFJ銀行利用明細 世帯一覧</h1>
-
-<table border="1">
-    <tr>
-        <th>利用者</th>
-        <th>利用日</th>
-        <th>入出金</th>
-        <th>取引後残高</th>
-        <th>内容</th>
-        <th>カテゴリー</th>
-        <th>分類方法</th>
-        <th>編集する</th>
-        <th>記憶</th>
-    </tr>
-
-    {% for ufj in ufjs %}
-    <tr>
-        <td>{{ ufj.owner }}</td>
-        <td>{{ ufj.used_date }}</td>
-        <td>{{ ufj.amount }}</td>
-        <td>{{ ufj.zankin }}円</td>
-        <td>{{ ufj.store_name }}</td>
-        <td>{{ ufj.category }}</td>
-        <td>
-        {% if ufj.classification_method == "ai" %}
-            🤖
-        {% elif ufj.classification_method == "memory" %}
-            🗃️
-        {% elif ufj.classification_method == "ml" %}
-            🧠  
-        {% else %}
-            📋
-        {% endif %}
-        </td>
-        <td>
-            <a href="{% url 'expense:ginkou_category_update' ufj.pk %}">
-            <!-- 一方、expense.pkを書かかないとpkに入れる値がないので、ページ表示時にだいたいエラーになる。expense.pkは今この行に表示しているExpenseデータのIDを表してる。
-            ちなみにpkはprimary keyの略で、今回ならDjangoが自動で作ったidとほぼ同じ。 -->
-              変更
-            </a>
-        </td>
-        <td>
-            <input
-                type="checkbox"
-                name="selected_banks"
-                value="{{ ufj.pk }}"
-            >
-        </td>
-    </tr>
-    {% empty %}
-    <tr>
-        <td colspan="9">明細がありません。</td>
-        <!-- これは、表の4列分を横につなげて1つのセルにするという意味。普通に書くと1列分だけになるがcolspan="4"を付けると、4列分の幅を使って表示される。 -->
-    </tr>
-    {% endfor %}
-</table>
-
-<h1>ろうきん利用明細 世帯一覧</h1>
-
-<table border="1">
-    <tr>
-        <th>利用者</th>
-        <th>利用日</th>
-        <th>入出金</th>
-        <th>取引後残高</th>
-        <th>内容</th>
-        <th>カテゴリー</th>
-        <th>分類方法</th>
-        <th>編集する</th>
-        <th>記憶</th>
-    </tr>
-
-    {% for roukin in roukins %}
-    <tr>
-        <td>{{ roukin.owner }}</td>
-        <td>{{ roukin.used_date }}</td>
-        <td>{{ roukin.amount }}</td>
-        <td>{{ roukin.zankin }}円</td>
-        <td>{{ roukin.store_name }}</td>
-        <td>{{ roukin.category }}</td>
-        <td>
-        {% if roukin.classification_method == "ai" %}
-            🤖
-        {% elif roukin.classification_method == "memory" %}
-            🗃️
-        {% elif roukin.classification_method == "ml" %}
-            🧠  
-        {% else %}
-            📋
-        {% endif %}
-        </td>
-        <td>
-            <a href="{% url 'expense:ginkou_category_update' roukin.pk %}">
-            <!-- 一方、expense.pkを書かかないとpkに入れる値がないので、ページ表示時にだいたいエラーになる。expense.pkは今この行に表示しているExpenseデータのIDを表してる。
-            ちなみにpkはprimary keyの略で、今回ならDjangoが自動で作ったidとほぼ同じ。 -->
-              変更
-            </a>
-        </td>
-        <td>
-            <input
-                type="checkbox"
-                name="selected_banks"
-                value="{{ roukin.pk }}"
-            >
-        </td>
-    </tr>
-    {% empty %}
-    <tr>
-        <td colspan="9">明細がありません。</td>
-        <!-- これは、表の4列分を横につなげて1つのセルにするという意味。普通に書くと1列分だけになるがcolspan="4"を付けると、4列分の幅を使って表示される。 -->
-    </tr>
-    {% endfor %}
-</table>
-<button type="submit">選択したカードカテゴリーを一括記憶</button>
-</form>
-</div>
 
 
 <hr>
 
+
+<!-- =========================
+     個人タブ
+========================= -->
 
 <div
     id="personal-panel"
     class="tab-panel"
 >
 
-<h1>個人用グラフ</h1>
 
-<h2>カテゴリー別支出、円グラフ（個人）</h2>
-<div class="chart-box">
-    <canvas id="myCategoryChart"></canvas>
+    <!-- =========================
+         個人グラフ
+    ========================= -->
 
-    {{ my_chart_labels|json_script:"my-chart-labels" }}
-    {{ my_chart_values|json_script:"my-chart-values" }}
-</div>
+    <section class="dashboard-section">
 
-<h2>細かいカテゴリの横棒グラフ（個人）</h2>
-<div class="chart-bar">
-    <canvas id="myDetailCategoryChart"></canvas>
+        <div class="section-heading">
 
-    {{ my_detail_chart_labels|json_script:"my-detail-chart-labels" }}
-    {{ my_detail_chart_values|json_script:"my-detail-chart-values" }}
-</div>
+            <div>
+                <span class="section-label">
+                    PERSONAL
+                </span>
 
-<h2>月別支出、折れ線グラフ（個人）</h2>
-<div class="chart-box">
-    <canvas id="myMonthlyChart"></canvas>
+                <h2>
+                    個人ダッシュボード
+                </h2>
+            </div>
 
-    {{ my_monthly_labels|json_script:"my-monthly-labels" }}
-    {{ my_monthly_values|json_script:"my-monthly-values" }}
-</div>
-
-<h2>食費推移（個人）</h2>
-<div class="chart-box">
-    <canvas id="myFoodChart"></canvas>
-
-    {{ my_food_monthly_labels|json_script:"my-food-monthly-labels" }}
-    {{ my_food_out_values|json_script:"my-food-out-values" }}
-    {{ my_food_home_values|json_script:"my-food-home-values" }}
-</div>
-
-<h2>月間収支（個人）</h2>
-<div class="chart-box">
-    <canvas id="myProfitChart"></canvas>
-
-    {{ my_profit_labels|json_script:"my-profit-labels" }}
-    {{ my_profit_income_values|json_script:"my-profit-income-values" }}
-    {{ my_profit_expense_values|json_script:"my-profit-expense-values" }}
-    {{ my_profit_values|json_script:"my-profit-values" }}
-</div>
+        </div>
 
 
+        <div class="chart-grid">
 
-<h1>楽天カード利用明細 個人一覧</h1>
-<form method="post" action="{% url 'expense:bulk_save_rules' %}">
-<input type="hidden" name="month" value="{{ month }}">
-{% csrf_token %}
 
-<div class="bulk-actions">
+            <!-- カテゴリー別 -->
+            <article class="chart-card">
 
-    <button
-        type="button"
-        class="select-all-button"
-        data-checkbox-name="selected_expenses"
-    >
-        すべて選択
-    </button>
+                <div class="chart-card-header">
 
-</div>
+                    <div>
+                        <span class="chart-label">
+                            CATEGORY
+                        </span>
 
-<table border="1">
-    <tr>
-        <th>利用日</th>
-        <th>利用店名</th>
-        <th>金額</th>
-        <th>カテゴリー</th>
-        <th>分類方法</th>
-        <th>編集する</th>
-        <th>記憶</th>
-    </tr>
+                        <h3>
+                            カテゴリー別支出
+                        </h3>
+                    </div>
 
-    {% for expense in my_expenses %}
-    <tr>
-        <td>{{ expense.used_date }}</td>
-        <td>{{ expense.store_name }}</td>
-        <td>{{ expense.amount }}円</td>
-        <td>{{ expense.category }}</td>
-        <td>
-        {% if expense.classification_method == "ai" %}
-            🤖
-        {% elif expense.classification_method == "memory" %}
-            🗃️
-        {% elif expense.classification_method == "ml" %}
-            🧠  
-        {% else %}
-            📋
-        {% endif %}
-        </td>
-        <td>
-            <a href="{% url 'expense:expense_category_update' expense.pk %}">
-            <!-- 一方、expense.pkを書かかないとpkに入れる値がないので、ページ表示時にだいたいエラーになる。expense.pkは今この行に表示しているExpenseデータのIDを表してる。
-            ちなみにpkはprimary keyの略で、今回ならDjangoが自動で作ったidとほぼ同じ。 -->
-              変更
-            </a>
-        </td>
-        <td>
-            <input
-                type="checkbox"
-                name="selected_expenses"
-                value="{{ expense.pk }}"
+                </div>
+
+                <div class="chart-container pie-chart">
+                    <canvas id="myCategoryChart"></canvas>
+                </div>
+
+                {{ my_chart_labels|json_script:"my-chart-labels" }}
+                {{ my_chart_values|json_script:"my-chart-values" }}
+
+            </article>
+
+
+            <!-- 月別支出 -->
+            <article class="chart-card">
+
+                <div class="chart-card-header">
+
+                    <div>
+                        <span class="chart-label">
+                            MONTHLY
+                        </span>
+
+                        <h3>
+                            月別支出推移
+                        </h3>
+                    </div>
+
+                </div>
+
+                <div class="chart-container">
+                    <canvas id="myMonthlyChart"></canvas>
+                </div>
+
+                {{ my_monthly_labels|json_script:"my-monthly-labels" }}
+                {{ my_monthly_values|json_script:"my-monthly-values" }}
+
+            </article>
+
+
+            <!-- 食費 -->
+            <article class="chart-card">
+
+                <div class="chart-card-header">
+
+                    <div>
+                        <span class="chart-label">
+                            FOOD
+                        </span>
+
+                        <h3>
+                            食費推移
+                        </h3>
+                    </div>
+
+                </div>
+
+                <div class="chart-container">
+                    <canvas id="myFoodChart"></canvas>
+                </div>
+
+                {{ my_food_monthly_labels|json_script:"my-food-monthly-labels" }}
+                {{ my_food_out_values|json_script:"my-food-out-values" }}
+                {{ my_food_home_values|json_script:"my-food-home-values" }}
+
+            </article>
+
+
+            <!-- 月間収支 -->
+            <article class="chart-card">
+
+                <div class="chart-card-header">
+
+                    <div>
+                        <span class="chart-label">
+                            CASH FLOW
+                        </span>
+
+                        <h3>
+                            月間収支
+                        </h3>
+                    </div>
+
+                </div>
+
+                <div class="chart-container">
+                    <canvas id="myProfitChart"></canvas>
+                </div>
+
+                {{ my_profit_labels|json_script:"my-profit-labels" }}
+                {{ my_profit_income_values|json_script:"my-profit-income-values" }}
+                {{ my_profit_expense_values|json_script:"my-profit-expense-values" }}
+                {{ my_profit_values|json_script:"my-profit-values" }}
+
+            </article>
+
+
+            <!-- 詳細カテゴリ -->
+            <article class="chart-card chart-card-wide">
+
+                <div class="chart-card-header">
+
+                    <div>
+                        <span class="chart-label">
+                            DETAILS
+                        </span>
+
+                        <h3>
+                            支出カテゴリー詳細
+                        </h3>
+                    </div>
+
+                </div>
+
+                <div class="chart-container detail-chart">
+                    <canvas id="myDetailCategoryChart"></canvas>
+                </div>
+
+                {{ my_detail_chart_labels|json_script:"my-detail-chart-labels" }}
+                {{ my_detail_chart_values|json_script:"my-detail-chart-values" }}
+
+            </article>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- =========================
+         個人 楽天カード
+    ========================= -->
+
+    <section class="dashboard-section">
+
+        <div class="section-heading">
+
+            <div>
+                <span class="section-label">
+                    CREDIT CARD
+                </span>
+
+                <h2>
+                    楽天カード利用明細
+                </h2>
+            </div>
+
+        </div>
+
+
+        <div class="data-card">
+
+            <form
+                method="post"
+                action="{% url 'expense:bulk_save_rules' %}"
             >
-        </td>
 
-    </tr>
-    {% empty %}
-    <tr>
-        <td colspan="7">明細がありません。</td>
-        <!-- これは、表の4列分を横につなげて1つのセルにするという意味。普通に書くと1列分だけになるがcolspan="4"を付けると、4列分の幅を使って表示される。 -->
-    </tr>
-    {% endfor %}
-</table>
-<button type="submit">選択したカテゴリーを一括記憶</button>
-</form>
+                {% csrf_token %}
 
-<form method="post" action="{% url 'expense:bank_bulk_save_rules' %}">
-{% csrf_token %}
-<input type="hidden" name="month" value="{{ month }}">
-<h1>楽天銀行利用明細 個人一覧</h1>
+                <input
+                    type="hidden"
+                    name="month"
+                    value="{{ month }}"
+                >
 
-<div class="bulk-actions">
 
-    <button
-        type="button"
-        class="select-all-button"
-        data-checkbox-name="selected_banks"
-    >
-        すべて選択
-    </button>
+                <div class="table-toolbar">
 
-</div>
+                    <span class="table-description">
+                        記憶させたい明細を選択してください
+                    </span>
 
-<table border="1">
-    <tr>
-        <th>利用日</th>
-        <th>入出金</th>
-        <th>取引後残高</th>
-        <th>内容</th>
-        <th>カテゴリー</th>
-        <th>分類方法</th>
-        <th>編集する</th>
-        <th>記憶</th>
-    </tr>
+                    <button
+                        type="button"
+                        class="select-all-button"
+                        data-checkbox-name="selected_expenses"
+                    >
+                        すべて選択
+                    </button>
 
-    {% for rakuten in my_rakutens %}
-    <tr>
-        <td>{{ rakuten.used_date }}</td>
-        <td>{{ rakuten.amount }}</td>
-        <td>{{ rakuten.zankin }}円</td>
-        <td>{{ rakuten.store_name }}</td>
-        <td>{{ rakuten.category }}</td>
-        <td>
-        {% if rakuten.classification_method == "ai" %}
-            🤖
-        {% elif rakuten.classification_method == "memory" %}
-            🗃️
-        {% elif rakuten.classification_method == "ml" %}
-            🧠  
-        {% else %}
-            📋
-        {% endif %}
-        </td>
-        <td>
-            <a href="{% url 'expense:ginkou_category_update' rakuten.pk %}">
-            <!-- 一方、expense.pkを書かかないとpkに入れる値がないので、ページ表示時にだいたいエラーになる。expense.pkは今この行に表示しているExpenseデータのIDを表してる。
-            ちなみにpkはprimary keyの略で、今回ならDjangoが自動で作ったidとほぼ同じ。 -->
-              変更
-            </a>
-        </td>
-        <td>
-            <input
-                type="checkbox"
-                name="selected_banks"
-                value="{{ rakuten.pk }}"
+                </div>
+
+
+                <div class="table-scroll">
+
+                    <table class="money-table">
+
+                        <thead>
+
+                            <tr>
+                                <th>利用日</th>
+                                <th>利用店名</th>
+                                <th>金額</th>
+                                <th>カテゴリー</th>
+                                <th>分類</th>
+                                <th>編集</th>
+                                <th>記憶</th>
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody>
+
+                        {% for expense in my_expenses %}
+
+                            <tr>
+
+                                <td>
+                                    {{ expense.used_date }}
+                                </td>
+
+                                <td class="store-name">
+                                    {{ expense.store_name }}
+                                </td>
+
+                                <td class="money-value">
+                                    ¥{{ expense.amount }}
+                                </td>
+
+                                <td>
+                                    <span class="category-badge">
+                                        {{ expense.category }}
+                                    </span>
+                                </td>
+
+                                <td class="classification">
+
+                                    {% if expense.classification_method == "ai" %}
+                                        <span title="AI分類">
+                                            🤖
+                                        </span>
+
+                                    {% elif expense.classification_method == "memory" %}
+                                        <span title="記憶分類">
+                                            🗃️
+                                        </span>
+
+                                    {% elif expense.classification_method == "ml" %}
+                                        <span title="機械学習">
+                                            🧠
+                                        </span>
+
+                                    {% else %}
+                                        <span title="手動分類">
+                                            📋
+                                        </span>
+                                    {% endif %}
+
+                                </td>
+
+                                <td>
+
+                                    <a
+                                        href="{% url 'expense:expense_category_update' expense.pk %}"
+                                        class="edit-link"
+                                    >
+                                        変更
+                                    </a>
+
+                                </td>
+
+                                <td>
+
+                                    <input
+                                        type="checkbox"
+                                        name="selected_expenses"
+                                        value="{{ expense.pk }}"
+                                        class="memory-checkbox"
+                                    >
+
+                                </td>
+
+                            </tr>
+
+
+                        {% empty %}
+
+                            <tr>
+                                <td
+                                    colspan="7"
+                                    class="empty-table"
+                                >
+                                    明細がありません。
+                                </td>
+                            </tr>
+
+                        {% endfor %}
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+
+                <div class="table-footer">
+
+                    <button
+                        type="submit"
+                        class="memory-save-button"
+                    >
+                        選択したカテゴリーを一括記憶
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- =========================
+         個人 銀行
+    ========================= -->
+
+    <section class="dashboard-section">
+
+        <div class="section-heading">
+
+            <div>
+                <span class="section-label">
+                    BANK
+                </span>
+
+                <h2>
+                    銀行利用明細
+                </h2>
+            </div>
+
+        </div>
+
+
+        <div class="data-card">
+
+            <form
+                method="post"
+                action="{% url 'expense:bank_bulk_save_rules' %}"
             >
-        </td>
-    </tr>
-    {% empty %}
-    <tr>
-        <td colspan="8">明細がありません。</td>
-        <!-- これは、表の4列分を横につなげて1つのセルにするという意味。普通に書くと1列分だけになるがcolspan="4"を付けると、4列分の幅を使って表示される。 -->
-    </tr>
-    {% endfor %}
-</table>
 
-{% if my_ufjs %}
-<h1>三菱UFJ銀行利用明細 個人一覧</h1>
+                {% csrf_token %}
 
-<table border="1">
-    <tr>
-        <th>利用日</th>
-        <th>入出金</th>
-        <th>取引後残高</th>
-        <th>内容</th>
-        <th>カテゴリー</th>
-        <th>分類方法</th>
-        <th>編集する</th>
-        <th>記憶</th>
-    </tr>
+                <input
+                    type="hidden"
+                    name="month"
+                    value="{{ month }}"
+                >
 
-    {% for ufj in my_ufjs %}
-    <tr>
-        <td>{{ ufj.used_date }}</td>
-        <td>{{ ufj.amount }}</td>
-        <td>{{ ufj.zankin }}円</td>
-        <td>{{ ufj.store_name }}</td>
-        <td>{{ ufj.category }}</td>
-        <td>
-        {% if ufj.classification_method == "ai" %}
-            🤖
-        {% elif ufj.classification_method == "memory" %}
-            🗃️
-        {% elif ufj.classification_method == "ml" %}
-            🧠  
-        {% else %}
-            📋
-        {% endif %}
-        </td>
-        <td>
-            <a href="{% url 'expense:ginkou_category_update' ufj.pk %}">
-            <!-- 一方、expense.pkを書かかないとpkに入れる値がないので、ページ表示時にだいたいエラーになる。expense.pkは今この行に表示しているExpenseデータのIDを表してる。
-            ちなみにpkはprimary keyの略で、今回ならDjangoが自動で作ったidとほぼ同じ。 -->
-              変更
-            </a>
-        </td>
-        <td>
-            <input
-                type="checkbox"
-                name="selected_banks"
-                value="{{ ufj.pk }}"
-            >
-        </td>
-    </tr>
-    {% empty %}
-    <tr>
-        <td colspan="8">明細がありません。</td>
-        <!-- これは、表の4列分を横につなげて1つのセルにするという意味。普通に書くと1列分だけになるがcolspan="4"を付けると、4列分の幅を使って表示される。 -->
-    </tr>
-    {% endfor %}
-</table>
-{% endif %}
 
-{% if my_roukins %}
-<h1>ろうきん利用明細 個人一覧</h1>
+                <div class="table-toolbar">
 
-<table border="1">
-    <tr>
-        <th>利用日</th>
-        <th>入出金</th>
-        <th>取引後残高</th>
-        <th>内容</th>
-        <th>カテゴリー</th>
-        <th>分類方法</th>
-        <th>編集する</th>
-        <th>記憶</th>
-    </tr>
+                    <span class="table-description">
+                        記憶させたい銀行明細を選択してください
+                    </span>
 
-    {% for roukin in my_roukins %}
-    <tr>
-        <td>{{ roukin.used_date }}</td>
-        <td>{{ roukin.amount }}</td>
-        <td>{{ roukin.zankin }}円</td>
-        <td>{{ roukin.store_name }}</td>
-        <td>{{ roukin.category }}</td>
-        <td>
-        {% if roukin.classification_method == "ai" %}
-            🤖
-        {% elif roukin.classification_method == "memory" %}
-            🗃️
-        {% elif roukin.classification_method == "ml" %}
-            🧠  
-        {% else %}
-            📋
-        {% endif %}
-        </td>
-        <td>
-            <a href="{% url 'expense:ginkou_category_update' roukin.pk %}">
-            <!-- 一方、expense.pkを書かかないとpkに入れる値がないので、ページ表示時にだいたいエラーになる。expense.pkは今この行に表示しているExpenseデータのIDを表してる。
-            ちなみにpkはprimary keyの略で、今回ならDjangoが自動で作ったidとほぼ同じ。 -->
-              変更
-            </a>
-        </td>
-        <td>
-            <input
-                type="checkbox"
-                name="selected_banks"
-                value="{{ roukin.pk }}"
-            >
-        </td>
-    </tr>
-    {% empty %}
-    <tr>
-        <td colspan="8">明細がありません。</td>
-        <!-- これは、表の4列分を横につなげて1つのセルにするという意味。普通に書くと1列分だけになるがcolspan="4"を付けると、4列分の幅を使って表示される。 -->
-    </tr>
-    {% endfor %}
-</table>
-{% endif %}
-<button type="submit">選択したカテゴリーを一括記憶</button>
-</form>
+                    <button
+                        type="button"
+                        class="select-all-button"
+                        data-checkbox-name="selected_banks"
+                    >
+                        すべて選択
+                    </button>
+
+                </div>
+
+
+
+                <!-- 楽天銀行 -->
+
+                <div class="bank-block">
+
+                    <div class="bank-title-row">
+
+                        <div>
+                            <span class="bank-label">
+                                RAKUTEN BANK
+                            </span>
+
+                            <h3>
+                                楽天銀行
+                            </h3>
+                        </div>
+
+                    </div>
+
+
+                    <div class="table-scroll">
+
+                        <table class="money-table">
+
+                            <thead>
+                                <tr>
+                                    <th>利用日</th>
+                                    <th>入出金</th>
+                                    <th>取引後残高</th>
+                                    <th>内容</th>
+                                    <th>カテゴリー</th>
+                                    <th>分類</th>
+                                    <th>編集</th>
+                                    <th>記憶</th>
+                                </tr>
+                            </thead>
+
+
+                            <tbody>
+
+                            {% for rakuten in my_rakutens %}
+
+                                <tr>
+
+                                    <td>
+                                        {{ rakuten.used_date }}
+                                    </td>
+
+                                    <td class="money-value">
+                                        ¥{{ rakuten.amount }}
+                                    </td>
+
+                                    <td class="money-value">
+                                        ¥{{ rakuten.zankin }}
+                                    </td>
+
+                                    <td class="store-name">
+                                        {{ rakuten.store_name }}
+                                    </td>
+
+                                    <td>
+                                        <span class="category-badge">
+                                            {{ rakuten.category }}
+                                        </span>
+                                    </td>
+
+                                    <td class="classification">
+
+                                        {% if rakuten.classification_method == "ai" %}
+                                            🤖
+
+                                        {% elif rakuten.classification_method == "memory" %}
+                                            🗃️
+
+                                        {% elif rakuten.classification_method == "ml" %}
+                                            🧠
+
+                                        {% else %}
+                                            📋
+                                        {% endif %}
+
+                                    </td>
+
+                                    <td>
+
+                                        <a
+                                            href="{% url 'expense:ginkou_category_update' rakuten.pk %}"
+                                            class="edit-link"
+                                        >
+                                            変更
+                                        </a>
+
+                                    </td>
+
+                                    <td>
+
+                                        <input
+                                            type="checkbox"
+                                            name="selected_banks"
+                                            value="{{ rakuten.pk }}"
+                                            class="memory-checkbox"
+                                        >
+
+                                    </td>
+
+                                </tr>
+
+
+                            {% empty %}
+
+                                <tr>
+                                    <td
+                                        colspan="8"
+                                        class="empty-table"
+                                    >
+                                        楽天銀行の明細はありません。
+                                    </td>
+                                </tr>
+
+                            {% endfor %}
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- 三菱UFJ銀行 -->
+
+                {% if my_ufjs %}
+
+                <div class="bank-block">
+
+                    <div class="bank-title-row">
+
+                        <div>
+                            <span class="bank-label">
+                                MUFG
+                            </span>
+
+                            <h3>
+                                三菱UFJ銀行
+                            </h3>
+                        </div>
+
+                    </div>
+
+
+                    <div class="table-scroll">
+
+                        <table class="money-table">
+
+                            <thead>
+                                <tr>
+                                    <th>利用日</th>
+                                    <th>入出金</th>
+                                    <th>取引後残高</th>
+                                    <th>内容</th>
+                                    <th>カテゴリー</th>
+                                    <th>分類</th>
+                                    <th>編集</th>
+                                    <th>記憶</th>
+                                </tr>
+                            </thead>
+
+
+                            <tbody>
+
+                            {% for ufj in my_ufjs %}
+
+                                <tr>
+
+                                    <td>
+                                        {{ ufj.used_date }}
+                                    </td>
+
+                                    <td class="money-value">
+                                        ¥{{ ufj.amount }}
+                                    </td>
+
+                                    <td class="money-value">
+                                        ¥{{ ufj.zankin }}
+                                    </td>
+
+                                    <td class="store-name">
+                                        {{ ufj.store_name }}
+                                    </td>
+
+                                    <td>
+                                        <span class="category-badge">
+                                            {{ ufj.category }}
+                                        </span>
+                                    </td>
+
+                                    <td class="classification">
+
+                                        {% if ufj.classification_method == "ai" %}
+                                            🤖
+
+                                        {% elif ufj.classification_method == "memory" %}
+                                            🗃️
+
+                                        {% elif ufj.classification_method == "ml" %}
+                                            🧠
+
+                                        {% else %}
+                                            📋
+                                        {% endif %}
+
+                                    </td>
+
+                                    <td>
+
+                                        <a
+                                            href="{% url 'expense:ginkou_category_update' ufj.pk %}"
+                                            class="edit-link"
+                                        >
+                                            変更
+                                        </a>
+
+                                    </td>
+
+                                    <td>
+
+                                        <input
+                                            type="checkbox"
+                                            name="selected_banks"
+                                            value="{{ ufj.pk }}"
+                                            class="memory-checkbox"
+                                        >
+
+                                    </td>
+
+                                </tr>
+
+                            {% endfor %}
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+
+                {% endif %}
+
+
+
+                <!-- ろうきん -->
+
+                {% if my_roukins %}
+
+                <div class="bank-block">
+
+                    <div class="bank-title-row">
+
+                        <div>
+                            <span class="bank-label">
+                                ROUKIN
+                            </span>
+
+                            <h3>
+                                ろうきん
+                            </h3>
+                        </div>
+
+                    </div>
+
+
+                    <div class="table-scroll">
+
+                        <table class="money-table">
+
+                            <thead>
+                                <tr>
+                                    <th>利用日</th>
+                                    <th>入出金</th>
+                                    <th>取引後残高</th>
+                                    <th>内容</th>
+                                    <th>カテゴリー</th>
+                                    <th>分類</th>
+                                    <th>編集</th>
+                                    <th>記憶</th>
+                                </tr>
+                            </thead>
+
+
+                            <tbody>
+
+                            {% for roukin in my_roukins %}
+
+                                <tr>
+
+                                    <td>
+                                        {{ roukin.used_date }}
+                                    </td>
+
+                                    <td class="money-value">
+                                        ¥{{ roukin.amount }}
+                                    </td>
+
+                                    <td class="money-value">
+                                        ¥{{ roukin.zankin }}
+                                    </td>
+
+                                    <td class="store-name">
+                                        {{ roukin.store_name }}
+                                    </td>
+
+                                    <td>
+                                        <span class="category-badge">
+                                            {{ roukin.category }}
+                                        </span>
+                                    </td>
+
+                                    <td class="classification">
+
+                                        {% if roukin.classification_method == "ai" %}
+                                            🤖
+
+                                        {% elif roukin.classification_method == "memory" %}
+                                            🗃️
+
+                                        {% elif roukin.classification_method == "ml" %}
+                                            🧠
+
+                                        {% else %}
+                                            📋
+                                        {% endif %}
+
+                                    </td>
+
+                                    <td>
+
+                                        <a
+                                            href="{% url 'expense:ginkou_category_update' roukin.pk %}"
+                                            class="edit-link"
+                                        >
+                                            変更
+                                        </a>
+
+                                    </td>
+
+                                    <td>
+
+                                        <input
+                                            type="checkbox"
+                                            name="selected_banks"
+                                            value="{{ roukin.pk }}"
+                                            class="memory-checkbox"
+                                        >
+
+                                    </td>
+
+                                </tr>
+
+                            {% endfor %}
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+
+                {% endif %}
+
+
+
+                <div class="table-footer">
+
+                    <button
+                        type="submit"
+                        class="memory-save-button"
+                    >
+                        選択したカテゴリーを一括記憶
+                    </button>
+
+                </div>
+
+
+            </form>
+
+        </div>
+
+    </section>
+
 
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="{% static 'expense/js/expense_chart.js' %}"></script>
+<script src="{% static 'expense/js/base.js' %}"></script>
 
 </body>
 </html>
