@@ -21,6 +21,31 @@
 
 <h1>{{ month }}家計管理</h1>
 
+<div class="view-tabs">
+
+    <button
+        type="button"
+        class="view-tab active"
+        data-tab="household"
+    >
+        世帯
+    </button>
+
+    <button
+        type="button"
+        class="view-tab"
+        data-tab="personal"
+    >
+        個人
+    </button>
+
+</div>
+
+<div
+    id="household-panel"
+    class="tab-panel active"
+>
+
 <h1>世帯用グラフ</h1>
 
 <h2>カテゴリー別支出、円グラフ</h2>
@@ -78,6 +103,18 @@
 <input type="hidden" name="month" value="{{ month }}">
 {% csrf_token %}
 
+<div class="bulk-actions">
+
+        <button
+            type="button"
+            class="select-all-button"
+            data-checkbox-name="selected_expenses"
+        >
+            すべて選択
+        </button>
+
+</div>
+
 <table border="1">
     <tr>
         <th>利用者</th>
@@ -134,13 +171,23 @@
 <button type="submit">選択したカテゴリーを一括記憶</button>
 </form>
 
-
-
-
+<h1>楽天銀行利用明細 世帯一覧</h1>
 <form method="post" action="{% url 'expense:bank_bulk_save_rules' %}">
 {% csrf_token %}
-<input type="hidden" name="month" value="{{ month }}">
-<h1>楽天銀行利用明細 世帯一覧</h1>
+<input type="hidden" name="month" value="{{ month }}" />
+
+<div class="bulk-actions">
+
+    <button
+        type="button"
+        class="select-all-button"
+        data-checkbox-name="selected_banks"
+    >
+        すべて選択
+    </button>
+
+</div>
+
 
 <table border="1">
     <tr>
@@ -310,10 +357,19 @@
     </tr>
     {% endfor %}
 </table>
-<button type="submit">選択したカテゴリーを一括記憶</button>
+<button type="submit">選択したカードカテゴリーを一括記憶</button>
 </form>
+</div>
+
 
 <hr>
+
+
+<div
+    id="personal-panel"
+    class="tab-panel"
+>
+
 <h1>個人用グラフ</h1>
 
 <h2>カテゴリー別支出、円グラフ（個人）</h2>
@@ -359,13 +415,24 @@
     {{ my_profit_values|json_script:"my-profit-values" }}
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="{% static 'expense/js/expense_chart.js' %}"></script>
+
 
 <h1>楽天カード利用明細 個人一覧</h1>
 <form method="post" action="{% url 'expense:bulk_save_rules' %}">
 <input type="hidden" name="month" value="{{ month }}">
 {% csrf_token %}
+
+<div class="bulk-actions">
+
+    <button
+        type="button"
+        class="select-all-button"
+        data-checkbox-name="selected_expenses"
+    >
+        すべて選択
+    </button>
+
+</div>
 
 <table border="1">
     <tr>
@@ -425,6 +492,18 @@
 {% csrf_token %}
 <input type="hidden" name="month" value="{{ month }}">
 <h1>楽天銀行利用明細 個人一覧</h1>
+
+<div class="bulk-actions">
+
+    <button
+        type="button"
+        class="select-all-button"
+        data-checkbox-name="selected_banks"
+    >
+        すべて選択
+    </button>
+
+</div>
 
 <table border="1">
     <tr>
@@ -595,6 +674,10 @@
 <button type="submit">選択したカテゴリーを一括記憶</button>
 </form>
 
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="{% static 'expense/js/expense_chart.js' %}"></script>
 
 </body>
 </html>

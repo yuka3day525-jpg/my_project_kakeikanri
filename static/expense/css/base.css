@@ -1155,6 +1155,109 @@ body {
     background: #27272a;
 }
 
+/* =========================
+   世帯 / 個人タブ
+========================= */
+
+.view-tabs {
+    display: inline-flex;
+
+    padding: 5px;
+
+    margin:
+        25px 0
+        35px;
+
+    background: #ececef;
+
+    border-radius: 12px;
+}
+
+.view-tab {
+    min-width: 130px;
+
+    padding:
+        10px 25px;
+
+    background: transparent;
+    color: #71717a;
+
+    border: none;
+    border-radius: 9px;
+
+    font-size: 15px;
+    font-weight: 700;
+
+    cursor: pointer;
+
+    transition: 0.2s;
+}
+
+.view-tab:hover {
+    color: #18181b;
+}
+
+.view-tab.active {
+    background: #18181b;
+    color: #ffffff;
+
+    box-shadow:
+        0 3px 8px
+        rgba(0, 0, 0, 0.12);
+}
+
+
+/* =========================
+   タブ中身
+========================= */
+
+.tab-panel {
+    display: none;
+}
+
+.tab-panel.active {
+    display: block;
+}
+
+
+/* =========================
+   全選択
+========================= */
+
+.bulk-actions {
+    display: flex;
+    justify-content: flex-end;
+
+    margin:
+        12px 0;
+}
+
+.select-all-button {
+    padding:
+        8px 14px;
+
+    background: #f4f4f5;
+    color: #3f3f46;
+
+    border:
+        1px solid #d4d4d8;
+
+    border-radius: 8px;
+
+    font-size: 13px;
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition: 0.2s;
+}
+
+.select-all-button:hover {
+    background: #18181b;
+    color: #ffffff;
+    border-color: #18181b;
+}
+
 
 
 

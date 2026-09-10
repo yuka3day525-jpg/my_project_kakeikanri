@@ -437,3 +437,129 @@ new Chart(
         },
     }
 );
+
+// ========================================
+// 世帯 / 個人 タブ切り替え
+// ========================================
+
+const tabButtons =
+    document.querySelectorAll(".view-tab");
+
+const tabPanels =
+    document.querySelectorAll(".tab-panel");
+
+
+tabButtons.forEach((button) => {
+
+    button.addEventListener("click", () => {
+
+        const selectedTab =
+            button.dataset.tab;
+
+
+        // ボタンのactiveを一旦全部消す
+        tabButtons.forEach((tabButton) => {
+            tabButton.classList.remove("active");
+        });
+
+
+        // パネルも全部非表示
+        tabPanels.forEach((panel) => {
+            panel.classList.remove("active");
+        });
+
+
+        // 押したボタンをactive
+        button.classList.add("active");
+
+
+        // 対応する画面だけ表示
+        document
+            .getElementById(
+                `${selectedTab}-panel`
+            )
+            .classList.add("active");
+
+
+        // 非表示だったChart.jsを再調整
+        if (typeof Chart !== "undefined") {
+
+            Object.values(
+                Chart.instances
+            ).forEach((chart) => {
+                chart.resize();
+            });
+
+        }
+
+    });
+
+});
+
+
+// ========================================
+// カテゴリー記憶 全選択
+// ========================================
+
+const selectAllButtons =
+    document.querySelectorAll(
+        ".select-all-button"
+    );
+
+
+selectAllButtons.forEach((button) => {
+
+    button.addEventListener("click", () => {
+
+        // このボタンが入っているformだけ取得
+        const form =
+            button.closest("form");
+
+
+        // selected_expenses か selected_banks
+        const checkboxName =
+            button.dataset.checkboxName;
+
+
+        // このformの中だけから探す
+        const checkboxes =
+            form.querySelectorAll(
+                `input[name="${checkboxName}"]`
+            );
+
+
+        // 全部チェックされているか
+        const allChecked =
+            Array.from(checkboxes)
+                .every(
+                    checkbox =>
+                        checkbox.checked
+                );
+
+
+        // 全部チェック済みなら解除
+        // そうでなければ全部選択
+        checkboxes.forEach((checkbox) => {
+
+            checkbox.checked =
+                !allChecked;
+
+        });
+
+
+        // ボタン文字変更
+        if (allChecked) {
+
+            button.textContent =
+                "すべて選択";
+
+        } else {
+
+            button.textContent =
+                "すべて解除";
+
+        }
+
+    });
+
+});
