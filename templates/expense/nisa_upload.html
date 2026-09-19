@@ -1,3 +1,4 @@
+<!-- ☑ -->
 <!DOCTYPE html>
 <html lang="ja">
 
@@ -39,7 +40,9 @@
         <div class="brand">
 
             <h1 class="brand-title">
+            <a href="{% url 'expense:expense_index' %}">
                 MoneyMind
+            </a>
             </h1>
 
             <span class="brand-subtitle">
@@ -54,69 +57,81 @@
 
 
 
-<!-- ハンバーガーメニュー -->
+<!-- =========================
+         ハンバーガーメニュー
+    ========================== -->
+    <aside
+        class="side-menu"
+        id="sideMenu"
+    >
 
-<aside
-    class="side-menu"
-    id="sideMenu"
->
+        <div class="side-menu-header">
+            <span class="side-menu-title">
+                過去の年度
+            </span>
 
-    <div class="side-menu-header">
+            <button
+                type="button"
+                class="side-menu-close"
+                id="menuClose"
+            >
+                ×
+            </button>
+        </div>
 
-        <span class="side-menu-title">
-            過去の年度
-        </span>
+        <div class="year-menu">
 
-        <button
-            type="button"
-            class="side-menu-close"
-            id="menuClose"
-        >
-            ×
-        </button>
+        {% for year, months in past_years.items %}
+
+            <details class="year-item">
+
+                <summary class="year-label">
+
+                    <span>
+                        {{ year }}年
+                    </span>
+
+                    <span class="year-arrow">
+                        ▼
+                    </span>
+
+                </summary>
+
+                <div class="year-months">
+
+                    {% for item in months %}
+
+                        <a
+                            href="{% url 'expense:expense_month' item.value %}"
+                            class="year-month-link"
+                        >
+                            {{ item.label }}
+                        </a>
+
+                    {% endfor %}
+
+                </div>
+
+            </details>
+
+        {% empty %}
+
+            <p class="year-empty">
+                過去の明細はまだありません。
+            </p>
+
+        {% endfor %}
 
     </div>
 
-
-    <div class="year-menu">
-
-        <div class="year-item">
-
-            <span class="year-label">
-                2025
-            </span>
-
-            <div class="year-months">
-                <a href="#">2025-12</a>
-                <a href="#">2025-11</a>
-                <a href="#">2025-10</a>
-            </div>
-
-        </div>
+    </aside>
 
 
-        <div class="year-item">
-
-            <span class="year-label">
-                2024
-            </span>
-
-            <div class="year-months">
-                <a href="#">2024-12</a>
-                <a href="#">2024-11</a>
-            </div>
-
-        </div>
-
-    </div>
-
-</aside>
-
-
-<div
-    class="menu-overlay"
-    id="menuOverlay"
-></div>
+    <!-- メニュー開いてる時の背景 -->
+    <div
+        class="menu-overlay"
+        id="menuOverlay"
+    ></div>
 
 
 

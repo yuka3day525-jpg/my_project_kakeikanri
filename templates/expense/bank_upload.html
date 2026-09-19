@@ -1,3 +1,4 @@
+<!-- ☑ -->
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -29,26 +30,22 @@
             <span></span>
         </button>
 
-
-        <div class="brand">
-
-            <h1 class="brand-title">
-                MoneyMind
-            </h1>
-
-            <span class="brand-subtitle">
-                Smart Household Finance
-            </span>
-
-        </div>
-
-
+            <div class="brand">
+                <h1 class="brand-title">
+                <a href="{% url 'expense:expense_index' %}">
+                    MoneyMind
+                </a>
+                </h1>
+                <span class="brand-subtitle">
+                    Smart Household Finance
+                </span>
+            </div>
 
     </div>
 
 </header>
 
-<!-- =========================
+    <!-- =========================
          ハンバーガーメニュー
     ========================== -->
     <aside
@@ -72,38 +69,56 @@
 
         <div class="year-menu">
 
-            <!-- ここは後でDjango側のyear_listに変更可能 -->
+        {% for year, months in past_years.items %}
 
-            <div class="year-item">
-                <span class="year-label">
-                    2025
-                </span>
+            <details class="year-item">
 
-                <div class="year-months">
-                    <a href="#">2025-12</a>
-                    <a href="#">2025-11</a>
-                    <a href="#">2025-10</a>
-                </div>
-            </div>
+                <summary class="year-label">
 
-            <div class="year-item">
-                <span class="year-label">
-                    2024
-                </span>
+                    <span>
+                        {{ year }}年
+                    </span>
+
+                    <span class="year-arrow">
+                        ▼
+                    </span>
+
+                </summary>
 
                 <div class="year-months">
-                    <a href="#">2024-12</a>
-                    <a href="#">2024-11</a>
-                </div>
-            </div>
 
-        </div>
+                    {% for item in months %}
+
+                        <a
+                            href="{% url 'expense:expense_month' item.value %}"
+                            class="year-month-link"
+                        >
+                            {{ item.label }}
+                        </a>
+
+                    {% endfor %}
+
+                </div>
+
+            </details>
+
+        {% empty %}
+
+            <p class="year-empty">
+                過去の明細はまだありません。
+            </p>
+
+        {% endfor %}
+
+    </div>
 
     </aside>
 
+
+    <!-- メニュー開いてる時の背景 -->
     <div
-    class="menu-overlay"
-    id="menuOverlay"
+        class="menu-overlay"
+        id="menuOverlay"
     ></div>
 
 
@@ -192,6 +207,7 @@
                 method="post"
                 enctype="multipart/form-data"
                 class="upload-form"
+                id="csvUploadForm"
             >
 
                 {% csrf_token %}
@@ -212,10 +228,29 @@
                     <button
                         type="submit"
                         class="primary-submit-button"
+                        id="uploadButton"
                     >
                         CSVを取り込む
                     </button>
 
+                </div>
+                <div
+                    class="upload-loading"
+                    id="uploadLoading"
+                    hidden
+                    role="status"
+                    aria-live="polite"
+                >
+                    <div class="loading-spinner"></div>
+
+                    <div class="loading-text">
+                        <strong>ファイルを取り込み中です...</strong>
+
+                        <span>
+                            明細データの読み込み・カテゴリー分類を行っています。<br>
+                            完了するまでしばらくお待ちください。
+                        </span>
+                    </div>
                 </div>
 
             </form>

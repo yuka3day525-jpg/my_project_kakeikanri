@@ -1,3 +1,4 @@
+<!-- ☑ -->
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -34,7 +35,11 @@
             </button>
 
             <div class="brand">
-                <h1 class="brand-title">MoneyMind</h1>
+                <h1 class="brand-title">
+                <a href="{% url 'expense:expense_index' %}">
+                    MoneyMind
+                </a>
+                </h1>
                 <span class="brand-subtitle">
                     Smart Household Finance
                 </span>
@@ -84,32 +89,48 @@
 
         <div class="year-menu">
 
-            <!-- ここは後でDjango側のyear_listに変更可能 -->
+        {% for year, months in past_years.items %}
 
-            <div class="year-item">
-                <span class="year-label">
-                    2025
-                </span>
+            <details class="year-item">
 
-                <div class="year-months">
-                    <a href="#">2025-12</a>
-                    <a href="#">2025-11</a>
-                    <a href="#">2025-10</a>
-                </div>
-            </div>
+                <summary class="year-label">
 
-            <div class="year-item">
-                <span class="year-label">
-                    2024
-                </span>
+                    <span>
+                        {{ year }}年
+                    </span>
+
+                    <span class="year-arrow">
+                        ▼
+                    </span>
+
+                </summary>
 
                 <div class="year-months">
-                    <a href="#">2024-12</a>
-                    <a href="#">2024-11</a>
-                </div>
-            </div>
 
-        </div>
+                    {% for item in months %}
+
+                        <a
+                            href="{% url 'expense:expense_month' item.value %}"
+                            class="year-month-link"
+                        >
+                            {{ item.label }}
+                        </a>
+
+                    {% endfor %}
+
+                </div>
+
+            </details>
+
+        {% empty %}
+
+            <p class="year-empty">
+                過去の明細はまだありません。
+            </p>
+
+        {% endfor %}
+
+    </div>
 
     </aside>
 
@@ -140,7 +161,7 @@
                     </span>
 
                     <h2>
-                        月別明細
+                        {{ current_year }}年 月別明細
                     </h2>
                 </div>
 
@@ -161,12 +182,12 @@
 
                 <div class="month-list">
 
-                    {% for month in month_list %}
+                    {% for month in current_months %}
 
                         <div class="month-item">
 
                             <a
-                                href="{% url 'expense:expense_month' month %}"
+                                href="{% url 'expense:expense_month' month.value %}"
                                 class="month-button"
                             >
                                 <span class="month-icon">
@@ -174,11 +195,11 @@
                                 </span>
 
                                 <span>
-                                    {{ month }}
+                                    {{ month.label }}
                                 </span>
                             </a>
 
-                            {% if month == new_month %}
+                            {% if month.value == new_month %}
                                 <span class="new-label">
                                     NEW
                                 </span>
@@ -565,3 +586,10 @@
 
 </body>
 </html>
+<!-- 
+    current_months, past_years = get_month_navigation(
+        household
+    )
+    "past_years": past_years,
+   
+

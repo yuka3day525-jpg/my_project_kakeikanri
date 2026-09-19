@@ -8,6 +8,8 @@ import pandas as pd
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import OuterRef, Subquery
+from collections import defaultdict
+from django.utils import timezone
 
 from datetime import datetime,date,timedelta
 from .models import Expense,ExpenseCategoryRule,BankCategoryRule,Bank,Nisa,Household
@@ -18,11 +20,15 @@ from .utils import normalize_store_name,classify_category,classify_bank_category
 from .chart import (
     make_category_chart,make_expense_trend_chart,make_food_chart,make_profit_chart,
 )
+from .month import get_month_navigation
 from django.http import Http404
 
 @login_required #「この下の関数を実行する前に、ログインしてるか確認してね」というデコレーター。
 def csv_upload(request):#requestには、ブラウザから送られてきた情報が入る。
     household = request.user.households.first()
+    current_months, past_years = get_month_navigation(
+        household
+    )
     if request.method == "POST":#CSVを選んで「取り込む」ボタンを押したときはPOST→入力されたCSVと対象月を受け取る
         form = CsvUploadForm_Expense(#送信された内容をCsvUploadFormに渡している。
             request.POST,#には普通の入力項目が入る。
@@ -118,13 +124,16 @@ def csv_upload(request):#requestには、ブラウザから送られてきた情
         "expense/csv_upload.html",
         {
             "form": form,
+            "past_years": past_years,
         },
     )
 
 @login_required
 def ginkou_upload(request):
-
     household = request.user.households.first()
+    current_months, past_years = get_month_navigation(
+        household
+    )
     if request.method == "POST":#CSVを選んで「取り込む」ボタンを押したときはPOST→入力されたCSVと対象月を受け取る
         form = CsvUploadForm_Bank(#送信された内容をCsvUploadFormに渡している。
             request.POST,#には普通の入力項目が入る。
@@ -464,6 +473,7 @@ def ginkou_upload(request):
         "expense/bank_upload.html",
         {
             "form": form,
+            "past_years": past_years,
         },
     )
 # 今回
@@ -519,13 +529,30 @@ def expense_index(request):
 # #これで１か月前のexpense_monthのページに行ってくれる
 #     month = last_month_day.strftime("%Y-%m")
     household = request.user.households.first() #でログイン中のユーザーが所属しているHouseholdを取得するfirstはログイン中ユーザーが所属している家計を1個取るいう意味
-    month_list = (
-    Expense.objects.filter(household=household).
-    values_list("billing_month", flat=True)#はExpenseの全項目じゃなくて、billing_monthだけ取り出す。flat=Trueがないと、
-# [("2026-07",), ("2026-07",), ("2026-08",), ("2026-08",)]みたいに1個ずつタプルになる。 今回は月だけ欲しいからflat=Trueで普通の値にしてる。
-    .distinct()#重複を消す。
-    .order_by("-billing_month")
+#     month_list = (
+#     Expense.objects.filter(household=household).
+#     values_list("billing_month", flat=True)#はExpenseの全項目じゃなくて、billing_monthだけ取り出す。flat=Trueがないと、
+# # [("2026-07",), ("2026-07",), ("2026-08",), ("2026-08",)]みたいに1個ずつタプルになる。 今回は月だけ欲しいからflat=Trueで普通の値にしてる。
+#     .distinct()#重複を消す。
+#     .order_by("-billing_month")
+#     )
+
+#     month_buttons = []
+#     for item in month_list:
+#         month_number = int(item.split("-")[1])
+
+#         month_buttons.append({
+#             "value": item,
+#             "label": f"{month_number}月",
+#         })
+
+    current_months, past_years = get_month_navigation(
+        household
     )
+    current_year = timezone.localdate().year
+
+
+    
     new_month = request.GET.get("new_month")
     latest_nisa = Nisa.objects.filter(household=household,owner=OuterRef("owner")).order_by("-recorded_date","-pk",)
     nisa_list = (Nisa.objects.filter(household=household,pk=Subquery(latest_nisa.values("pk")[:1])).select_related("owner"))
@@ -572,7 +599,9 @@ def expense_index(request):
     return render(
             request,"expense/index.html",
             {
-             "month_list": month_list,
+             "current_year" : current_year,
+             "current_months": current_months,
+             "past_years": past_years,
              "new_month": new_month,
              "nisa_list": nisa_list,
              "bank_balances": bank_balances,
@@ -619,12 +648,26 @@ def expense_month(request,month):
     roukin_list = Bank.objects.filter(household=household,billing_month=month,bank="roukin").order_by("-used_date")
 
 
-    month_list = (
-    Expense.objects.filter(household=household).
-    values_list("billing_month", flat=True)#はExpenseの全項目じゃなくて、billing_monthだけ取り出す。flat=Trueがないと、
-# [("2026-07",), ("2026-07",), ("2026-08",), ("2026-08",)]みたいに1個ずつタプルになる。 今回は月だけ欲しいからflat=Trueで普通の値にしてる。
-    .distinct()#重複を消す。
-    .order_by("-billing_month")
+#     month_list = (
+#     Expense.objects.filter(household=household).
+#     values_list("billing_month", flat=True)#はExpenseの全項目じゃなくて、billing_monthだけ取り出す。flat=Trueがないと、
+# # [("2026-07",), ("2026-07",), ("2026-08",), ("2026-08",)]みたいに1個ずつタプルになる。 今回は月だけ欲しいからflat=Trueで普通の値にしてる。
+#     .distinct()#重複を消す。
+#     .order_by("-billing_month")
+#     )
+
+#     month_buttons = []
+
+#     for item in month_list:
+#         month_number = int(item.split("-")[1])
+
+#         month_buttons.append({
+#             "value": item,
+#             "label": f"{month_number}月",
+#         })
+
+    current_months, past_years = get_month_navigation(
+        household
     )
 
     my_expenses = Expense.objects.filter(household=household,owner=request.user,billing_month=month,).order_by("-used_date")
@@ -703,7 +746,8 @@ def expense_month(request,month):
          "ufjs":ufj_list,
          "roukins":roukin_list,
          "month":month,
-         "month_list": month_list,
+         "current_months": current_months,
+         "past_years": past_years,
          "my_expenses":my_expenses,
          "my_rakutens":my_rakutens,
          "my_ufjs":my_ufjs,

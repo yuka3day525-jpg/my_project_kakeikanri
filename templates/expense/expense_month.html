@@ -25,72 +25,96 @@
 
         <div class="brand">
             <h1 class="brand-title">
-                MoneyMind
+                <a href="{% url 'expense:expense_index' %}">
+                    MoneyMind
+                </a>
             </h1>
+        
 
-            <span class="brand-subtitle">
-                Smart Household Finance
-            </span>
+        <span class="brand-subtitle">
+            Smart Household Finance
+        </span>
         </div>
 
     </div>
 
 </header>
 
-<aside
-    class="side-menu"
-    id="sideMenu"
->
+<!-- =========================
+         ハンバーガーメニュー
+    ========================== -->
+    <aside
+        class="side-menu"
+        id="sideMenu"
+    >
 
-    <div class="side-menu-header">
+        <div class="side-menu-header">
+            <span class="side-menu-title">
+                過去の年度
+            </span>
 
-        <span class="side-menu-title">
-            過去の年度
-        </span>
+            <button
+                type="button"
+                class="side-menu-close"
+                id="menuClose"
+            >
+                ×
+            </button>
+        </div>
 
-        <button
-            type="button"
-            class="side-menu-close"
-            id="menuClose"
-        >
-            ×
-        </button>
+        <div class="year-menu">
+
+        {% for year, months in past_years.items %}
+
+            <details class="year-item">
+
+                <summary class="year-label">
+
+                    <span>
+                        {{ year }}年
+                    </span>
+
+                    <span class="year-arrow">
+                        ▼
+                    </span>
+
+                </summary>
+
+                <div class="year-months">
+
+                    {% for item in months %}
+
+                        <a
+                            href="{% url 'expense:expense_month' item.value %}"
+                            class="year-month-link"
+                        >
+                            {{ item.label }}
+                        </a>
+
+                    {% endfor %}
+
+                </div>
+
+            </details>
+
+        {% empty %}
+
+            <p class="year-empty">
+                過去の明細はまだありません。
+            </p>
+
+        {% endfor %}
 
     </div>
 
-    <div class="year-menu">
+    </aside>
 
-        <div class="year-item">
-            <span class="year-label">
-                2025
-            </span>
 
-            <div class="year-months">
-                <a href="#">2025-12</a>
-                <a href="#">2025-11</a>
-                <a href="#">2025-10</a>
-            </div>
-        </div>
-
-        <div class="year-item">
-            <span class="year-label">
-                2024
-            </span>
-
-            <div class="year-months">
-                <a href="#">2024-12</a>
-                <a href="#">2024-11</a>
-            </div>
-        </div>
-
-    </div>
-
-</aside>
-
-<div
-    class="menu-overlay"
-    id="menuOverlay"
-></div>
+    <!-- メニュー開いてる時の背景 -->
+    <div
+        class="menu-overlay"
+        id="menuOverlay"
+    ></div>
 
 <main class="expense-page">
 
@@ -119,16 +143,17 @@
 
         <div class="month-navigation">
 
-            {% for item in month_list %}
+        {% for item in current_months %}
 
-                <a
-                    href="{% url 'expense:expense_month' item %}"
-                    class="small-month-button {% if item == month %}active{% endif %}"
-                >
-                    {{ item }}
-                </a>
+            <a
+                href="{% url 'expense:expense_month' item.value %}"
+                class="small-month-button
+                {% if item.value == month %}active{% endif %}"
+            >
+                {{ item.label }}
+            </a>
 
-            {% endfor %}
+        {% endfor %}
 
         </div>
 
@@ -383,7 +408,9 @@
             <div class="table-toolbar">
 
                 <span class="table-description">
-                    記憶させたい明細を選択してください
+                AI🤖によるカテゴリー分類は、誤る場合があります。<br>
+                カテゴリーが正しいことを確認し、記憶させたい明細を選択してください。<br>
+                記憶した内容は、次回以降の自動分類に利用されます。
                 </span>
 
                 <button
@@ -560,7 +587,9 @@
             <div class="table-toolbar">
 
                 <span class="table-description">
-                    記憶させたい銀行明細を選択してください
+                AI🤖によるカテゴリー分類は、誤る場合があります。<br>
+                カテゴリーが正しいことを確認し、記憶させたい明細を選択してください。<br>
+                記憶した内容は、次回以降の自動分類に利用されます。
                 </span>
 
                 <button
@@ -1288,7 +1317,9 @@
                 <div class="table-toolbar">
 
                     <span class="table-description">
-                        記憶させたい明細を選択してください
+                    AI🤖によるカテゴリー分類は、誤る場合があります。<br>
+                    カテゴリーが正しいことを確認し、記憶させたい明細を選択してください。<br>
+                    記憶した内容は、次回以降の自動分類に利用されます。
                     </span>
 
                     <button
@@ -1474,7 +1505,9 @@
                 <div class="table-toolbar">
 
                     <span class="table-description">
-                        記憶させたい銀行明細を選択してください
+                    AI🤖によるカテゴリー分類は、誤る場合があります。<br>
+                    カテゴリーが正しいことを確認し、記憶させたい明細を選択してください。<br>
+                    記憶した内容は、次回以降の自動分類に利用されます。
                     </span>
 
                     <button
