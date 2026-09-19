@@ -70,3 +70,37 @@ if (csvUploadForm) {
     });
 
 }
+
+// 一覧画面のスクロール位置を記憶
+document.querySelectorAll(".edit-link").forEach(link => {
+
+    link.addEventListener("click", () => {
+
+        sessionStorage.setItem(
+            "expenseScrollPosition",
+            window.scrollY
+        );
+
+    });
+
+});
+
+// 一覧画面に戻ってきたらスクロール位置を復元
+if (document.body.classList.contains("expense-month-page")) {
+
+    const savedPosition =
+        sessionStorage.getItem("expenseScrollPosition");
+
+    if (savedPosition !== null) {
+
+        window.addEventListener("load", () => {
+
+            window.scrollTo(0, Number(savedPosition));
+
+            sessionStorage.removeItem("expenseScrollPosition");
+
+        });
+
+    }
+
+}

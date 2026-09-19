@@ -1,43 +1,262 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
     <meta charset="UTF-8">
-    <title>カテゴリー編集</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>カテゴリー編集 | MoneyMind</title>
+
+    {% load static %}
+    {% load humanize %}
+
+    <link
+        rel="stylesheet"
+        href="{% static 'expense/css/base.css' %}"
+    >
 </head>
+
 <body>
+<!-- =========================
+     ヘッダー
+========================= -->
 
-<h1>カテゴリー編集</h1>
+<header class="app-header">
 
-<p>利用日：{{ object.used_date }}</p>
-<p>利用店名：{{ object.store_name }}</p>
-<p>金額：{{ object.amount }}円</p>
+    <div class="header-left">
 
-<form method="post">
-<!-- method="post"は、入力した内容をサーバーへ送る方法を指定している。今回なら、選んだカテゴリーをDjangoへ送って、DBを更新する。データを変更するときは基本的にpostを使う。
-一方、検索など、DBを変更しない処理ではgetを使うことが多い。 -->
-    {% csrf_token %}
-<!-- ↑webアプリの脆弱性の一つ、csrf検証を自動で行ってくれるもの -->
-    {{ form.as_p }}
-<!-- ↑自動で入力項目が生成される -->
-    <button type="submit">保存</button>
-</form>
+        <div class="brand">
 
-{% if kind == "expense" %}
-<a href="{% url 'expense:expense_delete' object.pk %}">
-    削除
-</a>
+            <h1 class="brand-title">
+                <a href="{% url 'expense:expense_index' %}">
+                    MoneyMind
+                </a>
+            </h1>
 
-{% elif kind == "bank" %}
-<a href="{% url 'expense:ginkou_delete' object.pk %}">
-    削除
-</a>
-{% endif %}
+            <span class="brand-subtitle">
+                Smart Household Finance
+            </span>
 
-<p>
-    <a href="{% url 'expense:expense_month' object.billing_month %}">
-        一覧へ戻る
-    </a>
-</p>
+        </div>
 
+    </div>
+
+</header>
+
+
+
+<!-- =========================
+     メイン
+========================= -->
+
+<main class="form-page">
+
+    <section class="form-section">
+
+        <div class="section-heading">
+
+            <div>
+
+                <span class="section-label">
+                    EDIT
+                </span>
+
+                <h2>
+                    カテゴリー編集
+                </h2>
+
+            </div>
+
+        </div>
+
+
+        <div class="form-card">
+
+            <!-- カード上部 -->
+
+            <div class="form-card-header">
+
+                <div class="form-icon">
+                    CT
+                </div>
+
+                <div>
+
+                    <h3>
+                        明細のカテゴリーを変更
+                    </h3>
+
+                    <p>
+                        明細を確認して、正しいカテゴリーを選択してください。
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <!-- =========================
+                 編集対象の明細
+            ========================= -->
+
+            <div class="category-detail">
+
+                <span class="category-detail-title">
+                    編集する明細
+                </span>
+
+                <div class="category-detail-row">
+
+                    <span class="category-detail-label">
+                        利用日
+                    </span>
+
+                    <span class="category-detail-value">
+                        {{ object.used_date }}
+                    </span>
+
+                </div>
+
+                <div class="category-detail-row">
+
+                    <span class="category-detail-label">
+                        利用店名
+                    </span>
+
+                    <span class="category-detail-value">
+                        {{ object.store_name }}
+                    </span>
+
+                </div>
+
+                <div class="category-detail-row">
+
+                    <span class="category-detail-label">
+                        金額
+                    </span>
+
+                    <strong class="category-detail-value">
+                        {{ object.amount|intcomma }}円
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <!-- =========================
+                 カテゴリー編集フォーム
+            ========================= -->
+
+            <form
+                method="post"
+                class="category-edit-form"
+            >
+
+                {% csrf_token %}
+
+                <div class="form-fields">
+
+                    <div class="form-group">
+                        {{ form.category.label_tag }}
+                        {{ form.category }}
+                    </div>
+
+                    <label class="checkbox-field">
+                        {{ form.save_as_rule }}
+
+                        <span>
+                            この店名を今後も選択したカテゴリーに分類する
+                        </span>
+                    </label>
+
+                </div>
+
+                <div class="form-actions">
+
+                    <button
+                        type="button"
+                        class="secondary-button"
+                        onclick="history.back()"
+                    >
+                        一覧へ戻る
+                    </button>
+
+                    <button
+                        type="submit"
+                        class="primary-submit-button"
+                    >
+                        変更を保存
+                    </button>
+
+                </div>
+
+            </form>
+
+
+            <!-- =========================
+                 削除
+            ========================= -->
+
+            {% if kind == "expense" %}
+
+                <div class="category-danger-zone">
+
+                    <div>
+
+                        <strong>
+                            この明細を削除
+                        </strong>
+
+                        <p>
+                            不要な明細は削除できます。
+                        </p>
+
+                    </div>
+
+                    <a
+                        href="{% url 'expense:expense_delete' object.pk %}"
+                        class="category-delete-button"
+                    >
+                        削除
+                    </a>
+
+                </div>
+
+            {% elif kind == "bank" %}
+
+                <div class="category-danger-zone">
+
+                    <div>
+
+                        <strong>
+                            この明細を削除
+                        </strong>
+
+                        <p>
+                            不要な明細は削除できます。
+                        </p>
+
+                    </div>
+
+                    <a
+                        href="{% url 'expense:ginkou_delete' object.pk %}"
+                        class="category-delete-button"
+                    >
+                        削除
+                    </a>
+
+                </div>
+
+            {% endif %}
+
+        </div>
+
+    </section>
+
+</main>
+
+<script src="{% static 'expense/js/base.js' %}"></script>
 </body>
+
 </html>

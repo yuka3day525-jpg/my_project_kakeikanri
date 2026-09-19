@@ -1961,6 +1961,177 @@ body {
     text-align: center;
 }
 
+/* ========================================
+   カテゴリー編集
+======================================== */
+
+/* 編集対象の明細 */
+
+.category-detail {
+    margin: 26px 0;
+    padding: 22px 24px;
+
+    background: #f8fafc;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+}
+
+.category-detail-title {
+    display: block;
+
+    margin-bottom: 14px;
+
+    color: #6b7280;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+}
+
+.category-detail-row {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+
+    gap: 20px;
+
+    padding: 12px 0;
+
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.category-detail-row:last-child {
+    border-bottom: none;
+}
+
+.category-detail-label {
+    flex-shrink: 0;
+
+    color: #6b7280;
+    font-size: 13px;
+}
+
+.category-detail-value {
+    min-width: 0;
+
+    color: #1f2937;
+    font-size: 14px;
+    text-align: right;
+
+    overflow-wrap: anywhere;
+}
+
+
+/* カテゴリー編集フォーム */
+
+.category-edit-form {
+    margin-top: 26px;
+}
+
+.category-edit-form .form-fields {
+    margin-bottom: 24px;
+}
+
+.category-edit-form select {
+    width: 100%;
+    max-width: 100%;
+
+    padding: 12px 14px;
+
+    background: #ffffff;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+
+    font: inherit;
+    color: #1f2937;
+}
+
+.category-edit-form select:focus {
+    outline: none;
+
+    border-color: #6366f1;
+
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
+}
+
+
+/* 削除エリア */
+
+.category-danger-zone {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 20px;
+
+    margin-top: 32px;
+    padding: 22px 0 0;
+
+    border-top: 1px solid #e5e7eb;
+}
+
+.category-danger-zone strong {
+    display: block;
+
+    color: #374151;
+    font-size: 14px;
+}
+
+.category-danger-zone p {
+    margin: 6px 0 0;
+
+    color: #9ca3af;
+    font-size: 12px;
+}
+
+.category-delete-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    flex-shrink: 0;
+
+    padding: 10px 20px;
+
+    background: #fff1f2;
+    border: 1px solid #fecdd3;
+    border-radius: 8px;
+
+    color: #be123c;
+    font-size: 13px;
+    font-weight: 700;
+    text-decoration: none;
+
+    transition: 0.2s;
+}
+
+.category-delete-button:hover {
+    background: #ffe4e6;
+    border-color: #fda4af;
+}
+
+.checkbox-field {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    margin-top: 18px;
+
+    font-size: 14px;
+    color: #374151;
+
+    cursor: pointer;
+}
+
+.checkbox-field input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+
+    margin: 0;
+
+    accent-color: #111827;
+}
+
+
 
 
 
@@ -2098,6 +2269,24 @@ body {
     .table-toolbar button {
         display: block;
         margin-top: 12px;
+    }
+
+    .category-detail {
+        padding: 16px;
+    }
+
+    .category-detail-row {
+        gap: 12px;
+    }
+
+    .category-danger-zone {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .category-delete-button {
+        width: 100%;
+        box-sizing: border-box;
     }
 
 }
