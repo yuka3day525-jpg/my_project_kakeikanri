@@ -143,7 +143,3 @@ NISA
 
     return categories
 
-# https://aistudio.google.com/usage?timeRange=last-28-days API使用履歴など
-
-#yuka rakuten 7 mitu 7 card 7 
-#genta rouki 7 card 7
