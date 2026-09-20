@@ -10,6 +10,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import OuterRef, Subquery
 from collections import defaultdict
 from django.utils import timezone
+from django.contrib import messages
 
 from datetime import datetime,date,timedelta
 from .models import Expense,ExpenseCategoryRule,BankCategoryRule,Bank,Nisa,Household
@@ -100,8 +101,25 @@ def csv_upload(request):#requestには、ブラウザから送られてきた情
                     expense.store_name for expense in ai_target
                 ]
 
+                from google.genai import errors
                 from .ai import gemini_predict_category
-                ai_result = gemini_predict_category(store_names)
+
+                try:
+                    ai_result = gemini_predict_category(store_names)
+
+                except errors.ServerError as e:
+
+                    if e.code == 503:
+
+                        messages.warning(
+                            request,
+                            "CSVの取り込みは完了しましたが、AIが混雑しているため、一部の明細は未分類のまま登録されました。後からカテゴリーを変更できます。"
+                        )
+
+                        ai_result = []
+
+                    else:
+                        raise
 
                 for expense,category in zip(
                     ai_target,ai_result
@@ -216,7 +234,24 @@ def ginkou_upload(request):
                         ]
         
                         from .ai import bank_gemini_predict_category
-                        ai_result = bank_gemini_predict_category(store_names)
+                        from google.genai import errors
+                        
+                        try:
+                            ai_result = bank_gemini_predict_category(store_names)
+
+                        except errors.ServerError as e:
+
+                            if e.code == 503:
+
+                                messages.warning(
+                                    request,
+                                    "銀行CSVの取り込みは完了しましたが、AIが混雑しているため、一部の明細は未分類のまま登録されました。後からカテゴリーを変更できます。"
+                                )
+
+                                ai_result = []
+
+                            else:
+                                raise
         
                         for bank,category in zip(
                             ai_target,ai_result
@@ -326,7 +361,24 @@ def ginkou_upload(request):
                         ]
         
                         from .ai import bank_gemini_predict_category
-                        ai_result = bank_gemini_predict_category(store_names)
+                        from google.genai import errors
+
+                        try:
+                            ai_result = bank_gemini_predict_category(store_names)
+
+                        except errors.ServerError as e:
+
+                            if e.code == 503:
+
+                                messages.warning(
+                                    request,
+                                    "銀行CSVの取り込みは完了しましたが、AIが混雑しているため、一部の明細は未分類のまま登録されました。後からカテゴリーを変更できます。"
+                                )
+
+                                ai_result = []
+
+                            else:
+                                raise
         
                         for bank,category in zip(
                             ai_target,ai_result
@@ -440,8 +492,25 @@ def ginkou_upload(request):
                         ]
         
                         from .ai import bank_gemini_predict_category
-                        ai_result = bank_gemini_predict_category(store_names)
-        
+                        from google.genai import errors
+
+                        try:
+                            ai_result = bank_gemini_predict_category(store_names)
+
+                        except errors.ServerError as e:
+
+                            if e.code == 503:
+
+                                messages.warning(
+                                    request,
+                                    "銀行CSVの取り込みは完了しましたが、AIが混雑しているため、一部の明細は未分類のまま登録されました。後からカテゴリーを変更できます。"
+                                )
+
+                                ai_result = []
+
+                            else:
+                                raise
+                                
                         for bank,category in zip(
                             ai_target,ai_result
                         ):

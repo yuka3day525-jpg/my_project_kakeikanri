@@ -342,6 +342,18 @@ body {
         100px;
 }
 
+.message-alert {
+    padding: 14px 18px;
+    margin: 20px 0;
+
+    background: #fff7ed;
+    border: 1px solid #fdba74;
+    border-radius: 10px;
+
+    color: #9a3412;
+    font-size: 14px;
+}
+
 
 /* =========================
    SECTION
@@ -1144,8 +1156,6 @@ body {
 
 .secondary-button {
     min-height: 44px;
-
-    display: inline-flex;
     align-items: center;
 
     padding: 0 18px;
@@ -2131,6 +2141,64 @@ body {
     accent-color: #111827;
 }
 
+/* =========================
+   削除確認画面
+========================= */
+
+.delete-warning {
+    margin: 24px 0;
+    padding: 18px 22px;
+
+    background: #fff1f2;
+    border: 1px solid #fecdd3;
+    border-radius: 10px;
+}
+
+.delete-warning strong {
+    display: block;
+
+    color: #be123c;
+    font-size: 14px;
+}
+
+.delete-warning p {
+    margin: 8px 0 0;
+
+    color: #9f1239;
+    font-size: 13px;
+    line-height: 1.7;
+}
+
+
+/* 削除確定ボタン */
+
+.delete-submit-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 12px 24px;
+
+    background: #be123c;
+    border: 1px solid #be123c;
+    border-radius: 8px;
+
+    color: #ffffff;
+    font: inherit;
+    font-size: 14px;
+    font-weight: 700;
+
+    cursor: pointer;
+
+    transition: 0.2s;
+}
+
+.delete-submit-button:hover {
+    background: #9f1239;
+    border-color: #9f1239;
+}
+
+
 
 
 
@@ -2288,6 +2356,19 @@ body {
         width: 100%;
         box-sizing: border-box;
     }
+    .delete-warning {
+        padding: 16px;
+    }
+
+    /* .delete-confirm-form .form-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .delete-confirm-form .form-actions button {
+        width: 100%;
+    } */
 
 }
     

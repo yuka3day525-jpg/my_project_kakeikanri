@@ -147,6 +147,14 @@
     ========================== -->
     <main class="main-container">
 
+        {% if messages %}
+            {% for message in messages %}
+                <div class="message-alert">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
 
         <!-- =========================
              月別明細

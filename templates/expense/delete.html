@@ -1,21 +1,197 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
     <meta charset="UTF-8">
-    <title>カテゴリー編集</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>明細の削除 | MoneyMind</title>
+
+    {% load static %}
+    {% load humanize %}
+
+    <link
+        rel="stylesheet"
+        href="{% static 'expense/css/base.css' %}"
+    >
 </head>
+
 <body>
 
-<h1>カテゴリー編集</h1>
+<header class="app-header">
 
-<form method="POST">
-{% csrf_token %}
-<p>この明細を削除していいですか？</p>
-<button type="submit">削除</button>
-</form>
-<p>利用日：{{ object.used_date }}</p>
-<p>利用店名：{{ object.store_name }}</p>
-<p>金額：{{ object.amount }}円</p>
-<p>カテゴリー：{{ object.category }}</p>
-<!-- ↑改行も反映されるようになる -->
-<br>
+    <div class="header-left">
+
+        <div class="brand">
+
+            <h1 class="brand-title">
+                <a href="{% url 'expense:expense_index' %}">
+                    MoneyMind
+                </a>
+            </h1>
+
+            <span class="brand-subtitle">
+                Smart Household Finance
+            </span>
+
+        </div>
+
+    </div>
+
+</header>
+
+
+<main class="form-page">
+
+    <section class="form-section">
+
+        <div class="section-heading">
+
+            <div>
+
+                <span class="section-label">
+                    DELETE
+                </span>
+
+                <h2>
+                    明細の削除
+                </h2>
+
+            </div>
+
+        </div>
+
+
+        <div class="form-card">
+
+            <div class="form-card-header">
+
+                <div class="form-icon">
+                    DL
+                </div>
+
+                <div>
+
+                    <h3>
+                        削除する明細の確認
+                    </h3>
+
+                    <p>
+                        以下の明細を削除してもよろしいですか？
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <!-- 警告 -->
+
+            <div class="delete-warning">
+
+                <strong>
+                    この操作は取り消せません
+                </strong>
+
+                <p>
+                    削除する明細の内容を確認してから、
+                    削除を確定してください。
+                </p>
+
+            </div>
+
+
+            <!-- 削除対象の明細 -->
+
+            <div class="category-detail">
+
+                <span class="category-detail-title">
+                    削除する明細
+                </span>
+
+                <div class="category-detail-row">
+
+                    <span class="category-detail-label">
+                        利用日
+                    </span>
+
+                    <span class="category-detail-value">
+                        {{ object.used_date }}
+                    </span>
+
+                </div>
+
+                <div class="category-detail-row">
+
+                    <span class="category-detail-label">
+                        利用店名
+                    </span>
+
+                    <span class="category-detail-value">
+                        {{ object.store_name }}
+                    </span>
+
+                </div>
+
+                <div class="category-detail-row">
+
+                    <span class="category-detail-label">
+                        金額
+                    </span>
+
+                    <strong class="category-detail-value">
+                        {{ object.amount|intcomma }}円
+                    </strong>
+
+                </div>
+
+                <div class="category-detail-row">
+
+                    <span class="category-detail-label">
+                        カテゴリー
+                    </span>
+
+                    <span class="category-detail-value">
+                        {{ object.category }}
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <!-- 削除確定 -->
+
+            <form method="post" class="delete-confirm-form">
+
+                {% csrf_token %}
+
+                <div class="form-actions">
+
+                    <button
+                        type="button"
+                        class="secondary-button"
+                        onclick="history.back()"
+                    >
+                        キャンセル
+                    </button>
+
+                    <button
+                        type="submit"
+                        class="delete-submit-button"
+                    >
+                        この明細を削除する
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </section>
+
+</main>
+
+</body>
+</html>
