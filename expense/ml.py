@@ -190,19 +190,20 @@ def bank_train_category_model(household):#カテゴリー分類の機械学習�
     )
     return vectorizer, model
 
-def expense_predict_category(store_name, household):#これは**「新しい店名を、さっき学習したモデルで予測する関数」**
+def expense_predict_category(store_name, household, trained_model=None):#これは**「新しい店名を、さっき学習したモデルで予測する関数」**
 
-    vectorizer, model = expense_train_category_model(
-        household
-    )
+    if trained_model is None:
+        trained_model = expense_train_category_model(household)
+
+    vectorizer, model = trained_model
 #さっき作った、train_category_model()を呼び出してる。
 # vectorizer
 # → 店名を数値化する担当
 # model
 # → 数値化された店名からカテゴリーを予測する担当
 
-    if vectorizer is None:
-        return "未分類",0
+    if vectorizer is None or model is None:
+        return "未分類", 0
     #学習できなかった時
 
     normalized_name = normalize_store_name(
@@ -257,14 +258,15 @@ def expense_predict_category(store_name, household):#これは**「新しい店�
 
     return str(category),float(confidence)
 
-def bank_predict_category(store_name, household):
+def bank_predict_category(store_name, household, trained_model=None):
 
-    vectorizer, model = bank_train_category_model(
-        household
-    )
+    if trained_model is None:
+        trained_model = bank_train_category_model(household)
+    
+    vectorizer, model = trained_model
 
-    if vectorizer is None:
-        return "未分類",0
+    if vectorizer is None or model is None:
+        return "未分類", 0
 
     normalized_name = normalize_store_name(
         store_name

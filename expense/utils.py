@@ -20,7 +20,7 @@ def normalize_store_name(store_name):
 
     return normalized_name.strip().upper()
 
-def classify_category(store_name,household):
+def classify_category(store_name,household,trained_model=None):
         normalized_name = normalize_store_name(store_name)
 
         # 保存した分類ルールを取得
@@ -64,6 +64,7 @@ def classify_category(store_name,household):
         predicted_category, confidence = expense_predict_category(
             store_name,
             household,
+            trained_model=trained_model,
         )
 
         # 機械学習がある程度自信あり
@@ -82,10 +83,12 @@ def classify_category(store_name,household):
 
         # return ai_category
 
-def classify_bank_category(store_name,household):
+def classify_bank_category(store_name,household,trained_model=None):
     normalized_name = normalize_store_name(store_name)
 
-    rules = BankCategoryRule.objects.all()
+    rules = BankCategoryRule.objects.filter(
+        household=household
+    )
 
     rules = sorted(
         rules,
@@ -115,6 +118,7 @@ def classify_bank_category(store_name,household):
     predicted_category, confidence = bank_predict_category(
         store_name,
         household,
+        trained_model=trained_model,
     )
     
     # 機械学習がある程度自信あり

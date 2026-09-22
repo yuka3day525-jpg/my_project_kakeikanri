@@ -51,6 +51,10 @@ def csv_upload(request):#requestには、ブラウザから送られてきた情
             reader = csv.reader(text_file)#CSV形式として読む。
 
             next(reader)#CSVの最初の1行を飛ばす。
+
+            from .ml import expense_train_category_model
+
+            trained_model = expense_train_category_model(household)
           
             for row in reader:#CSVを1行ずつ取り出す。
                 if not row:
@@ -69,7 +73,7 @@ def csv_upload(request):#requestには、ブラウザから送られてきた情
                 except ValueError:
                     continue#今の1回分の処理をここでやめて、次のrowへ行く
 
-                category, classification_method = classify_category(row[1],household)
+                category, classification_method = classify_category(row[1],household,trained_model=trained_model,)
 
                 expense,created = Expense.objects.get_or_create(#同じ明細があるか確認して、なければ新しく作る
                     household=household,
@@ -107,22 +111,14 @@ def csv_upload(request):#requestには、ブラウザから送られてきた情
 
                 ai_result = []
 
-                for attempt in range(3):
-                    try:
-                        ai_result = gemini_predict_category(store_names)
-                        break
+                try:
+                    ai_result = gemini_predict_category(store_names)
 
-                    except errors.ServerError as e:
-                        if e.code != 503:
-                            raise
-
-                        if attempt == 2:
-                            messages.warning(
-                                request,
-                                "AI分類に失敗したため、一部の明細は未分類で登録されました。"
-                            )
-                        else:
-                            time.sleep(2 ** attempt)
+                except Exception:
+                    messages.warning(
+                        request,
+                        "AI分類に失敗したため、一部の明細は未分類で登録されました。"
+                    )
 
                 for expense,category in zip(
                     ai_target,ai_result
@@ -166,7 +162,8 @@ def ginkou_upload(request):
             uploaded_file = form.cleaned_data["csv_file"]#検証済みフォームから、アップロードされたCSVファイルを取り出してる。cleaned_dataは、フォームのチェックが終わって、安全に使える状態になった値
             billing_month = form.cleaned_data["billing_month"]#同じように対象月を取り出す。
 
-            
+            from .ml import bank_train_category_model
+            trained_model = bank_train_category_model(household)
             try:
                 if bank_choice == "rakuten":
 
@@ -202,7 +199,7 @@ def ginkou_upload(request):
 
                         if used_date.strftime("%Y-%m") == billing_month:
                             store_name = row[3].strip()
-                            category, classification_method = classify_bank_category(store_name,household)
+                            category, classification_method = classify_bank_category(store_name,household,trained_model=trained_model,)
 
                             rakuten,created = Bank.objects.get_or_create(#同じ明細があるか確認して、なければ新しく作る
                                 household=household,
@@ -243,23 +240,15 @@ def ginkou_upload(request):
                         
                         ai_result = []
 
-                        for attempt in range(3):
-                            try:
-                                ai_result = bank_gemini_predict_category(store_names)
-                                break
+                        try:
+                            ai_result = bank_gemini_predict_category(store_names)
 
-                            except errors.ServerError as e:
-                                if e.code != 503:
-                                    raise
-
-                                if attempt == 2:
-                                    messages.warning(
-                                        request,
-                                        "AI分類に失敗したため、一部の明細は未分類で登録されました。"
-                                    )
-                                else:
-                                    time.sleep(2 ** attempt)
-        
+                        except Exception:
+                            messages.warning(
+                                request,
+                                "AI分類に失敗したため、一部の明細は未分類で登録されました。"
+                            )
+                            
                         for bank,category in zip(
                             ai_target,ai_result
                         ):
@@ -334,7 +323,7 @@ def ginkou_upload(request):
                     
                         if used_date.strftime("%Y-%m") == billing_month:
                             store_name = str(row["摘要内容"])
-                            category, classification_method = classify_bank_category(store_name,household)
+                            category, classification_method = classify_bank_category(store_name,household,trained_model=trained_model)
                             ufj,created = Bank.objects.get_or_create(#同じ明細があるか確認して、なければ新しく作る
                                 household=household,
                                 owner=request.user,
@@ -372,22 +361,14 @@ def ginkou_upload(request):
 
                         ai_result = []
 
-                        for attempt in range(3):
-                            try:
-                                ai_result = bank_gemini_predict_category(store_names)
-                                break
+                        try:
+                            ai_result = bank_gemini_predict_category(store_names)
 
-                            except errors.ServerError as e:
-                                if e.code != 503:
-                                    raise
-
-                                if attempt == 2:
-                                    messages.warning(
-                                        request,
-                                        "AI分類に失敗したため、一部の明細は未分類で登録されました。"
-                                    )
-                                else:
-                                    time.sleep(2 ** attempt)
+                        except Exception:
+                            messages.warning(
+                                request,
+                                "AI分類に失敗したため、一部の明細は未分類で登録されました。"
+                            )
         
                         for bank,category in zip(
                             ai_target,ai_result
@@ -467,7 +448,7 @@ def ginkou_upload(request):
                         if used_date.strftime("%Y-%m") == billing_month:
 
                             store_name = str(row["摘要"])
-                            category, classification_method = classify_bank_category(store_name,household)
+                            category, classification_method = classify_bank_category(store_name,household,trained_model=trained_model)
                             roukin,created = Bank.objects.get_or_create(
                                 household=household,
                                 owner=request.user,
@@ -505,22 +486,14 @@ def ginkou_upload(request):
 
                         ai_result = []
 
-                        for attempt in range(3):
-                            try:
-                                ai_result = bank_gemini_predict_category(store_names)
-                                break
+                        try:
+                            ai_result = bank_gemini_predict_category(store_names)
 
-                            except errors.ServerError as e:
-                                if e.code != 503:
-                                    raise
-
-                                if attempt == 2:
-                                    messages.warning(
-                                        request,
-                                        "AI分類に失敗したため、一部の明細は未分類で登録されました。"
-                                    )
-                                else:
-                                    time.sleep(2 ** attempt)
+                        except Exception:
+                            messages.warning(
+                                request,
+                                "AI分類に失敗したため、一部の明細は未分類で登録されました。"
+                            )
                                 
                         for bank,category in zip(
                             ai_target,ai_result
