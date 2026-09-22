@@ -56,7 +56,7 @@ NISA
 """
 
     response = client.models.generate_content(
-        model="gemini-3.6-flash",
+        model="gemini-2.5-flash",
         contents=prompt,
     )
     lines = response.text.strip().splitlines()
@@ -124,7 +124,7 @@ NISA
 """
 
     response = client.models.generate_content(
-            model="gemini-3.6-flash",
+            model="gemini-2.5-flash",
             contents=prompt,
         )
     lines = response.text.strip().splitlines()
