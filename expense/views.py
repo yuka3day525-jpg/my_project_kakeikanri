@@ -101,25 +101,28 @@ def csv_upload(request):#requestには、ブラウザから送られてきた情
                     expense.store_name for expense in ai_target
                 ]
 
+                import time
                 from google.genai import errors
                 from .ai import gemini_predict_category
 
-                try:
-                    ai_result = gemini_predict_category(store_names)
+                ai_result = []
 
-                except errors.ServerError as e:
+                for attempt in range(3):
+                    try:
+                        ai_result = gemini_predict_category(store_names)
+                        break
 
-                    if e.code == 503:
+                    except errors.ServerError as e:
+                        if e.code != 503:
+                            raise
 
-                        messages.warning(
-                            request,
-                            "CSVの取り込みは完了しましたが、AIが混雑しているため、一部の明細は未分類のまま登録されました。後からカテゴリーを変更できます。"
-                        )
-
-                        ai_result = []
-
-                    else:
-                        raise
+                        if attempt == 2:
+                            messages.warning(
+                                request,
+                                "AI分類に失敗したため、一部の明細は未分類で登録されました。"
+                            )
+                        else:
+                            time.sleep(2 ** attempt)
 
                 for expense,category in zip(
                     ai_target,ai_result
@@ -194,8 +197,8 @@ def ginkou_upload(request):
                                 "%Y%m%d",
                             ).date()
                         except ValueError:
-                            continue#今の1回分の処理をここでやめて、次のrowへ行く
-
+                            print("日付変換失敗:", repr(date_text))
+                            continue
 
                         if used_date.strftime("%Y-%m") == billing_month:
                             store_name = row[3].strip()
@@ -214,7 +217,8 @@ def ginkou_upload(request):
                                     "category": category,
                                     "classification_method": classification_method,
                                 },
-                        )
+                            )
+
 
                             if rakuten.category == "未分類":
                                 ai_target_pks.append(
@@ -235,23 +239,26 @@ def ginkou_upload(request):
         
                         from .ai import bank_gemini_predict_category
                         from google.genai import errors
+                        import time
                         
-                        try:
-                            ai_result = bank_gemini_predict_category(store_names)
+                        ai_result = []
 
-                        except errors.ServerError as e:
+                        for attempt in range(3):
+                            try:
+                                ai_result = bank_gemini_predict_category(store_names)
+                                break
 
-                            if e.code == 503:
+                            except errors.ServerError as e:
+                                if e.code != 503:
+                                    raise
 
-                                messages.warning(
-                                    request,
-                                    "銀行CSVの取り込みは完了しましたが、AIが混雑しているため、一部の明細は未分類のまま登録されました。後からカテゴリーを変更できます。"
-                                )
-
-                                ai_result = []
-
-                            else:
-                                raise
+                                if attempt == 2:
+                                    messages.warning(
+                                        request,
+                                        "AI分類に失敗したため、一部の明細は未分類で登録されました。"
+                                    )
+                                else:
+                                    time.sleep(2 ** attempt)
         
                         for bank,category in zip(
                             ai_target,ai_result
@@ -363,22 +370,24 @@ def ginkou_upload(request):
                         from .ai import bank_gemini_predict_category
                         from google.genai import errors
 
-                        try:
-                            ai_result = bank_gemini_predict_category(store_names)
+                        ai_result = []
 
-                        except errors.ServerError as e:
+                        for attempt in range(3):
+                            try:
+                                ai_result = bank_gemini_predict_category(store_names)
+                                break
 
-                            if e.code == 503:
+                            except errors.ServerError as e:
+                                if e.code != 503:
+                                    raise
 
-                                messages.warning(
-                                    request,
-                                    "銀行CSVの取り込みは完了しましたが、AIが混雑しているため、一部の明細は未分類のまま登録されました。後からカテゴリーを変更できます。"
-                                )
-
-                                ai_result = []
-
-                            else:
-                                raise
+                                if attempt == 2:
+                                    messages.warning(
+                                        request,
+                                        "AI分類に失敗したため、一部の明細は未分類で登録されました。"
+                                    )
+                                else:
+                                    time.sleep(2 ** attempt)
         
                         for bank,category in zip(
                             ai_target,ai_result
@@ -494,22 +503,24 @@ def ginkou_upload(request):
                         from .ai import bank_gemini_predict_category
                         from google.genai import errors
 
-                        try:
-                            ai_result = bank_gemini_predict_category(store_names)
+                        ai_result = []
 
-                        except errors.ServerError as e:
+                        for attempt in range(3):
+                            try:
+                                ai_result = bank_gemini_predict_category(store_names)
+                                break
 
-                            if e.code == 503:
+                            except errors.ServerError as e:
+                                if e.code != 503:
+                                    raise
 
-                                messages.warning(
-                                    request,
-                                    "銀行CSVの取り込みは完了しましたが、AIが混雑しているため、一部の明細は未分類のまま登録されました。後からカテゴリーを変更できます。"
-                                )
-
-                                ai_result = []
-
-                            else:
-                                raise
+                                if attempt == 2:
+                                    messages.warning(
+                                        request,
+                                        "AI分類に失敗したため、一部の明細は未分類で登録されました。"
+                                    )
+                                else:
+                                    time.sleep(2 ** attempt)
                                 
                         for bank,category in zip(
                             ai_target,ai_result
