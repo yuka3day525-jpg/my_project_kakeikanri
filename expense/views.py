@@ -115,6 +115,9 @@ def csv_upload(request):#requestには、ブラウザから送られてきた情
                     ai_result = gemini_predict_category(store_names)
 
                 except Exception:
+                    import logging
+                    logging.getLogger(__name__).exception("Gemini AI分類に失敗")
+
                     messages.warning(
                         request,
                         "AI分類に失敗したため、一部の明細は未分類で登録されました。"
