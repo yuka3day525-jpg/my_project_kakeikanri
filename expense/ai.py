@@ -5,7 +5,13 @@
 # そのあとexpense/ai.pyを作る
 
 from google import genai
-client = genai.Client()
+from google.genai import types
+
+client = genai.Client(
+    http_options=types.HttpOptions(
+        timeout=30000,  # 30秒（ミリ秒指定）
+    )
+)
 
 def gemini_predict_category(store_names):
 
