@@ -74,10 +74,16 @@ WSGI_APPLICATION = 'myproject.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
+import os
+
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+    "default": {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": BASE_DIR / (
+            "db_demo.sqlite3"
+            if os.getenv("MONEYMIND_DEMO") == "1"
+            else "db.sqlite3"
+        ),
     }
 }
 
